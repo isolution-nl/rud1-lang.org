@@ -109,10 +109,12 @@ named arguments, lazy lists.
 |---|---|
 | [Introduction](docs/rud1_introduction.md) | what the first release holds and offers, how a program looks and runs; each feature marked built, decided or proposed |
 | [Examples](docs/rud1_examples.md) | programs, each with the output it gives |
-| [The language](docs/rud1_spec.pdf) | the specification, written as of the first full release (PDF, 78 pages) |
+| [The language](docs/rud1_spec.pdf) | the specification, written as of the first full release (PDF, 70+ pages) |
+| [Good, better, best](docs/rud1_better_best.md) | rud1's choices beside other languages |
+| [Gotchas](docs/rud1_gotchas.md) | where rud1 does what a coder may not expect, each with the smallest case |
 | [Not yet](docs/rud1_not_yet.md) | what is decided or proposed and not yet built |
 
-"Good, better, best" (rud1's choices beside other languages) and the gotchas are coming soon. Each example in the documents is run again before a document is published.
+Each example in the documents is run again before a document is published.
 
 ## Licence
 

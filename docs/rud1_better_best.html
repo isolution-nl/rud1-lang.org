@@ -180,12 +180,828 @@
       vertical-align: middle;
     }
   </style>
+<style>body{max-width:52em;margin:2em auto;padding:0 1em;font-family:serif}code,pre{font-family:monospace}.greyparen{color:#8c8c8c}table{border-collapse:collapse}td,th{padding:.15em .6em;vertical-align:top}</style>
 <link rel="stylesheet" href="site.css" />
 </head>
 <body>
 <nav class="site"><a href="index.html"><img src="rud1_logo.svg" alt="rud1"></a><a href="rud1_introduction.html">Introduction</a><a href="rud1_examples.html">Examples</a><a href="rud1_better_best.html" class="here">Good, better, best</a><a href="rud1_gotchas.html">Gotchas</a><a href="rud1_not_yet.html">Not yet</a><a href="rud1_spec.pdf">Spec (PDF)</a><a href="https://github.com/isolution-nl/rud1-lang.org">GitHub</a></nav>
-<h1 id="rud1-good-better-best">rud1: Good, better, best</h1>
-<p>Coming soon.</p>
-<p>Back to the <a href="index.html">front page</a>.</p>
+<header id="title-block-header">
+<h1 class="title">rud1_better_best</h1>
+</header>
+<h1 id="good-better-best">Good, better, best</h1>
+<blockquote>
+<p>As we all know, <em>better</em> is the enemy of <em>good</em>. We want to be good, and better is in the eye
+of the beholder. (The author.)</p>
+</blockquote>
+<p>rud1 has a personality, and is opinionated. This file lists where its choices depart from what
+most languages do, from what a newcomer meets first to the specialised, with the reasons and
+the price, so that the reader can judge what “better'' is. Each section gives the rule, an example
+that was run, the reason as the spec or the project's history gives it (none where none is
+written), and the status: <strong>built</strong> (the prototype does it today), <strong>decided</strong> (designed,
+waits for a build) or <strong>proposed</strong> (not confirmed by the author).</p>
+<p>Examples run as <code>rud1 'code'</code> or <code>rud1 file.rud</code>, a shell function around the executable,
+which is named <code>rud1_run</code>; files end in <code>.rud</code>. <code>\\</code> starts a comment, so
+<code>[rud1] code \\&gt; result</code> is a program and what it printed. Positions in messages are
+<code>line:column</code>. Contrasts were run with Perl 5.38.2, Python 3.12.3 and gp 2.15.4, and again in generation 54
+with Perl 5.44.0, Python 3.15.0 and gp 2.19.0: no result differed. In generation 63 the others were run:
+Apple clang 21 (C++20), rustc 1.99.1, OpenJDK 27.0.1, GHC 9.14.1, Go 1.27.3, Julia 1.13.3, Rakudo
+2026.09 (Raku), Ruby 2.6.10, Lua 5.5.1, Zig 0.17.0, Swift 6.4, Elixir 1.20.4, Scala 3.10.0 (scala-cli 1.18.0) and, for WASI, wasmtime 50.0.0.
+A language not run is not named.</p>
+<h1 id="at-a-glance">At a glance</h1>
+<p>One row a section: what rud1 chose, where others choose alike, and where they don't. "The rest"
+means C++, Rust, Java, Perl, Python and gp.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">§</th>
+<th style="text-align: left;">rud1</th>
+<th style="text-align: left;">Alike</th>
+<th style="text-align: left;">Unlike</th>
+<th style="text-align: left;">Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">1</td>
+<td style="text-align: left;">the last value is shown unless the text ends in <code>;</code></td>
+<td style="text-align: left;">gp</td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">2</td>
+<td style="text-align: left;"><code>a= 1</code>, leading commas, the constant first; <code>rud1_fmt</code></td>
+<td style="text-align: left;">gofmt, rustfmt</td>
+<td style="text-align: left;">a free layout</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">3</td>
+<td style="text-align: left;">immutable by default, <code>mut my(…)</code></td>
+<td style="text-align: left;">Rust, Haskell</td>
+<td style="text-align: left;">C++, Java, Perl, Python, gp</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">4</td>
+<td style="text-align: left;">undeclared names, call counts and argument names are compile errors</td>
+<td style="text-align: left;">C++, Rust, Java; Perl's <code>strict</code> for names</td>
+<td style="text-align: left;">Python, gp</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">5</td>
+<td style="text-align: left;">whole numbers of any size, exact rationals; no float that rounds</td>
+<td style="text-align: left;">gp, Haskell, Raku; Python for whole numbers; Julia for rationals</td>
+<td style="text-align: left;">C++, Rust, Java, Perl, Julia (<code>Int</code> wraps)</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">6</td>
+<td style="text-align: left;"><code>3 - 5</code> of <code>uint</code>s is <code>underflow</code>, not a wrap</td>
+<td style="text-align: left;">Rust in a debug build (a panic)</td>
+<td style="text-align: left;">C++ (wraps), Java and Python (no unsigned type)</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">7</td>
+<td style="text-align: left;">Euclidean <code>//</code> and <code>%</code></td>
+<td style="text-align: left;">gp, Rust's <code>rem_euclid</code></td>
+<td style="text-align: left;">C++, Java, Rust (truncate), Python, Raku, Lua (floor), Perl (both)</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">8</td>
+<td style="text-align: left;"><code>0177</code> is an error, octal <code>\o{177}</code>, hex <code>\x{7F}</code></td>
+<td style="text-align: left;">Python (refuses <code>0177</code>)</td>
+<td style="text-align: left;">C++, Java, Perl (127), gp, Rust (177)</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">9</td>
+<td style="text-align: left;">a strict <code>bool</code>: no arithmetic, the only condition</td>
+<td style="text-align: left;">Rust, Java</td>
+<td style="text-align: left;">C++, Perl, Python, gp</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">10</td>
+<td style="text-align: left;"><code>==</code> across families an <code>error</code>, <code>===</code> identity</td>
+<td style="text-align: left;">gp's <code>===</code>; Rust (a type error)</td>
+<td style="text-align: left;">Python, Perl, Java</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">11</td>
+<td style="text-align: left;">comparisons chain in one direction</td>
+<td style="text-align: left;">Python; Perl, Raku, Julia (both directions)</td>
+<td style="text-align: left;">C++, Rust, Java, Haskell, gp</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">12</td>
+<td style="text-align: left;">errors are states of a value; <code>guard</code>, no exceptions</td>
+<td style="text-align: left;">Rust's <code>Result</code>, Go</td>
+<td style="text-align: left;">C++, Java, Perl, Python, gp</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">13</td>
+<td style="text-align: left;">from 0; a literal <code>-1</code> from the end, a computed one <code>underflow</code></td>
+<td style="text-align: left;">Python, Perl (literal)</td>
+<td style="text-align: left;">gp (from 1), Python and Perl (computed)</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">14</td>
+<td style="text-align: left;">ranges hold both ends, a step after <code>;</code>, splice</td>
+<td style="text-align: left;">gp, Perl, Raku</td>
+<td style="text-align: left;">Python, Rust (half-open)</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">15</td>
+<td style="text-align: left;">lazy lists, endless ones</td>
+<td style="text-align: left;">Haskell, Raku</td>
+<td style="text-align: left;">gp, Perl, Python lists</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">16</td>
+<td style="text-align: left;"><code>_+_</code> is <code>+</code> as a value, sealed</td>
+<td style="text-align: left;">Haskell <code>(+)</code>, Raku</td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">17</td>
+<td style="text-align: left;">placeholders <code>_1</code>, <code>_2</code></td>
+<td style="text-align: left;">Scala <code>_</code>, Elixir <code>&amp;1</code></td>
+<td style="text-align: left;">Python, Perl, gp</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">18</td>
+<td style="text-align: left;">a rest anywhere, spreads, every parameter by name</td>
+<td style="text-align: left;">Ruby, Python</td>
+<td style="text-align: left;">C++, Rust, Java, gp</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">19</td>
+<td style="text-align: left;"><code>defer</code>, which gets the block's result</td>
+<td style="text-align: left;">Go, Swift, Zig</td>
+<td style="text-align: left;">C++, Rust (RAII), Java, Python (<code>finally</code>)</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;">long names are the names; short ones by <code>alias</code></td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">Perl, gp</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">21</td>
+<td style="text-align: left;">a <code>str</code> is characters (extended grapheme clusters): <code>#s</code>, <code>s[i]</code> and <code>s[a..b]</code> by character; <code>bytes</code> apart</td>
+<td style="text-align: left;">Swift 6.4 (<code>s.count</code>; no <code>s[i]</code> by number)</td>
+<td style="text-align: left;">Python (code points), C++, Perl, gp (bytes), Java (UTF-16), Rust (no <code>s[i]</code>, slices by byte)</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">22</td>
+<td style="text-align: left;">full Unicode case mapping, Final_Sigma, no locale</td>
+<td style="text-align: left;">Python, Rust</td>
+<td style="text-align: left;">Perl, Java (locale), C++</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">23</td>
+<td style="text-align: left;"><code>\x{89}</code>, braces required</td>
+<td style="text-align: left;">Perl's <code>\x{…}</code></td>
+<td style="text-align: left;">C++, Java, Python</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">24</td>
+<td style="text-align: left;">reading changes nothing: CR, LF, BOM kept</td>
+<td style="text-align: left;">Perl on Unix</td>
+<td style="text-align: left;">Python</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">25</td>
+<td style="text-align: left;">a template <code>t{…}</code> is a checked literal</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">Perl's <code>pack</code> and regexes</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">26</td>
+<td style="text-align: left;"><code>unpack</code> never tries again</td>
+<td style="text-align: left;">PEG parsers</td>
+<td style="text-align: left;">Perl's regexes</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">27</td>
+<td style="text-align: left;">no silent limits</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">everyone</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">28</td>
+<td style="text-align: left;">every message has an id; <code>--explain</code></td>
+<td style="text-align: left;"><code>rustc --explain</code></td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">built</td>
+</tr>
+<tr>
+<td style="text-align: left;">29</td>
+<td style="text-align: left;">types settled when compiled, <code>auto</code> specialized per call</td>
+<td style="text-align: left;">C++ templates, Julia</td>
+<td style="text-align: left;">Python, Perl, gp</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">30</td>
+<td style="text-align: left;">sub-types: a refinement, a nominal type, an extension</td>
+<td style="text-align: left;">Haskell's <code>newtype</code></td>
+<td style="text-align: left;">Java (inheritance)</td>
+<td style="text-align: left;">decided; refinements built</td>
+</tr>
+<tr>
+<td style="text-align: left;">31</td>
+<td style="text-align: left;">floats of infinite precision; a type picks its overflow</td>
+<td style="text-align: left;">Rust's <code>wrapping_*</code></td>
+<td style="text-align: left;">C++, Rust, Java, Perl, Python</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">32</td>
+<td style="text-align: left;">a type's number of values; array or map by the index type</td>
+<td style="text-align: left;">Lua (one table)</td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">33</td>
+<td style="text-align: left;"><code>apx</code>: an approximation as a state</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">34</td>
+<td style="text-align: left;"><code>pending</code>: <code>async</code> as dataflow</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">async/await</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">35</td>
+<td style="text-align: left;">capabilities as bindings</td>
+<td style="text-align: left;">WASI</td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">36</td>
+<td style="text-align: left;">modules accepted by a proof of the importer's spec</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">37</td>
+<td style="text-align: left;">regions and taint, inferred when compiled</td>
+<td style="text-align: left;">Perl's <code>-T</code> (input only)</td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">38</td>
+<td style="text-align: left;"><code>sym</code> parameters, quoting; no <code>eval</code>, no macros</td>
+<td style="text-align: left;">Zig's <code>comptime</code></td>
+<td style="text-align: left;">Perl, Python (<code>eval</code>), Rust (macros)</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">39</td>
+<td style="text-align: left;">pure parallelism, a fixed reduction order, no locks</td>
+<td style="text-align: left;">gp's <code>par*</code></td>
+<td style="text-align: left;">C++, Java, Python</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">40</td>
+<td style="text-align: left;">modules are values; no reach into <code>__MAIN__</code></td>
+<td style="text-align: left;">Perl</td>
+<td style="text-align: left;">Python</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">41</td>
+<td style="text-align: left;">the executable is safe (dry-run) by default</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">everyone</td>
+<td style="text-align: left;">decided</td>
+</tr>
+<tr>
+<td style="text-align: left;">42</td>
+<td style="text-align: left;">the reference implementation is rud1's own</td>
+<td style="text-align: left;">—</td>
+<td style="text-align: left;">the rest</td>
+<td style="text-align: left;">decided</td>
+</tr>
+</tbody>
+</table>
+<h2 id="1-the-result-is-shown-unless-the-text-ends-in-">1. The result is shown, unless the text ends in <code>;</code></h2>
+<p>The value of the last expression of a program is shown after its output. A final <code>;</code>
+silences it. Display only: the value, and the way the program ends, stay the same.</p>
+<pre class="text"><code>[rud1] 1 + 1  \\&gt; 2
+[rud1] 1 + 1;  \\&gt; (no output)</code></pre>
+<p>Reason: gp's rule, taken over "a file never shows" and "never shown outside the REPL": one
+rule for a file, a one-liner and the REPL, "the most predictable too" (the author).
+Status: built.</p>
+<h2 id="2-layout-no-space-before--leading-commas">2. Layout: no space before <code>=</code>, leading commas</h2>
+<p>A style, not a rule of the language: white space carries no meaning. The reference style
+writes an assignment operator with no space before it and one after (<code>a= 1</code>, <code>x+= 1</code>,
+<code>v[i]= e</code>); other operators keep their spaces. A long <code>my(…)</code> or call has one item per
+line, the comma in front. Example code puts the constant first in <code>==</code> and <code>!=</code>, so that a
+slip of <code>=</code> for <code>==</code> is a compile error.</p>
+<pre class="text"><code>[rud1]
+my
+( width= 3
+, height= 4
+);
+width * height  \\&gt; 12</code></pre>
+<pre class="text"><code>[rud1] my(n= 2); if(1 = n, &quot;one&quot;, &quot;other&quot;)  \\&gt; 1:16 error invalid assignment target</code></pre>
+<p>Reason: the missing space sets assignment apart, "as <code>:=</code> does elsewhere". Status: built;
+the formatter <code>rud1_fmt</code> writes the normalized form in this style (generation 62), as gofmt and
+rustfmt do for theirs.</p>
+<h2 id="3-immutable-by-default">3. Immutable by default</h2>
+<p>A name declared with <code>my(…)</code> can't be assigned again; <code>mut my(…)</code> makes it changeable.
+Values are immutable unless their type says otherwise: if <code>w</code> is a (dynamic or fixed length)
+array, then by default <code>w[0]= 9</code> builds a new list and rebinds <code>w</code>; in-place change comes
+with the <code>{mut}</code> type attribute (decided, with the type pass). A function
+captures the values of the names it uses, not the names.</p>
+<pre class="text"><code>[rud1] my(a= 1); a= 2  \\&gt; 1:11 error assignment to immutable &#39;a&#39;
+[rud1] mut my(a= 1); a= 2; a  \\&gt; 2
+[rud1] my(v= [1, 2, 3]); mut my(w= v); w[0]= 9; [v, w]  \\&gt; [[1,2,3],[9,2,3]]
+[rud1] mut my(k= 1); my(f(x)= x + k); k= 10; f(1)  \\&gt; 2</code></pre>
+<p>Status: built.</p>
+<h2 id="4-static-checks-before-the-program-runs">4. Static checks before the program runs</h2>
+<p>A program is checked as a whole before its first step. An undeclared name, a name declared
+twice in one <code>my(…)</code>, and a call of a known function with a wrong count or a wrong argument
+name are compile errors: nothing has run.</p>
+<pre class="text"><code>[rud1] say(&quot;start&quot;); say(total)  \\&gt; 1:19 error undeclared &#39;total&#39;
+[rud1] my(a= 1, a= 2); a  \\&gt; 1:1 error duplicate declaration &#39;a&#39;
+[rud1] my(g(a, b)= a - b); g(1, c: 3)  \\&gt; 1:21 error call of &#39;g&#39;: no parameter &#39;c&#39;</code></pre>
+<p><code>python3.12 -c 'print("start"); print(total)'</code> prints <code>start</code>, then
+<code>NameError: name 'total' is not defined</code>.</p>
+<p>A callee is known when it is an immutable name bound to a function. Through a <code>mut</code> name or
+a parameter the same rule is checked when the call runs, and a break of it is an <code>error</code>.</p>
+<p>Reason (spec, principles): "whatever can feasibly be solved (or proved) at compile time is,
+even at the cost of extra compile rounds". Status: these checks are built. So are the checks on
+declared types (generation 45): <code>my(uint a= -1)</code> is a compile error.</p>
+<h2 id="5-whole-numbers-and-fractions-are-exact-of-any-size">5. Whole numbers and fractions are exact, of any size</h2>
+<p><code>uint</code> (0 and up) and <code>sint</code> have arbitrary precision, and <code>/</code> on exact numbers gives an
+exact rational. Nothing overflows in silence or becomes a float by itself.</p>
+<pre class="text"><code>[rud1] 2^64 + 1  \\&gt; 18446744073709551617
+[rud1] 1/3 + 1/6  \\&gt; 1/2
+[rud1] [7 / 2, 2^-3, 1/2 + 1, 1.5 * 2]  \\&gt; [7/2,1/8,3/2,3]</code></pre>
+<p><code>perl -e 'print 2**64 + 1'</code> gives <code>1.84467440737096e+19</code>; <code>python3.12 -c 'print(1/3 + 1/6)'</code>
+gives <code>0.5</code>; <code>echo '1/3 + 1/6' | gp -q</code> gives <code>1/2</code>. In Julia <code>1//3 + 1//6</code> is <code>1//2</code>,
+but <code>typemax(Int) + 1</code> is <code>-9223372036854775808</code>; Haskell's <code>2^70</code> and Raku's <code>2**70</code>
+are exact.</p>
+<p>A float has a dot with a digit after it (<code>1.5</code>), and the prototype keeps it exact, as a
+rational: <code>0.1 + 0.2</code> is <code>0.300000000000000</code>, exactly <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>3</mn><mi>/</mi><mn>10</mn></mrow><annotation encoding="application/x-tex">3/10</annotation></semantics></math>; <code>1.0 / 3</code> shows as the
+continued fraction <code>0.[3]</code>; <code>2.0^100</code> is the integer it equals, as is any float result that is
+whole (<code>0.1 * 3 * 10</code> is <code>3</code>). A binary64 is asked for by name, <code>f64</code>, and refuses a value it does not hold exactly
+(<code>my(f64 x= 0.1)</code> is an error).</p>
+<p>Reason: gp's numbers; the author's first principle (generation 29): "Types are by default
+of infinite precision." Status: <code>uint</code>, <code>sint</code>, rationals and the exact float are built. Decided, not built:
+native floats under names like <code>float8</code>, a native <code>i64</code> for whoever asks for it.</p>
+<h2 id="6-uint---uint-below-zero-is-the-state-underflow-prefix--makes-an-sint">6. A <code>uint</code> does not go below zero silently; prefix <code>+</code> makes a <code>sint</code></h2>
+<p>A literal without a sign is a <code>uint</code>, and the difference of two <code>uint</code>s is a <code>uint</code>: it does
+not silently become negative. A prefix <code>+</code> gives a <code>sint</code>, and the subtraction then happens
+in <code>sint</code>. The rule protects an index: a position that went below 0 is not read as "from the
+end", while a literal negative position is.</p>
+<pre class="text"><code>[rud1] +2 - 3  \\&gt; -1
+[rud1] my(a= 3, b= 5); abs(+a - b)  \\&gt; 2
+[rud1] my(v= [10, 20, 30], i= 0); [v[-1], guard(v[i - 1], &quot;none&quot;)]  \\&gt; [30,&quot;none&quot;]</code></pre>
+<p><code>python3.12 -c 'print([10, 20, 30][0 - 1])'</code> prints <code>30</code>. Rust's <code>3 - 5</code> of two <code>u32</code>s
+panics in a debug build (“attempt to subtract with overflow'') and gives <code>4294967294</code> in a
+release build, as C++ does.</p>
+<p>Reason (history, generation 11): the author reasons from full types, <code>nat 3 - nat 5</code> "will
+of course error in nat-context but not in int-context"; a <code>uint - uint</code> of type <code>sint</code> with a
+checked narrowing was rejected as "too lax in several places". Status: the state <code>underflow</code> (generation 38) and the
+prefix <code>+</code> are built, and so is a <code>sint</code> context from a declared type
+(<code>my(sint d= a - b)</code>, a <code>sint</code> parameter or return type), which widens the operands first (generation 45).</p>
+<h2 id="7-division-and-remainder-are-euclidean">7. Division and remainder are Euclidean</h2>
+<p><code>//</code> is the whole quotient, <code>%</code> the remainder; the remainder is never negative, and
+<code>a == b*(a // b) + a % b</code> holds. <code>/</code> is the exact division.</p>
+<pre class="text"><code>[rud1] [7 // -2, 7 % -2, -7 // 2, -7 % 2]  \\&gt; [-3,1,-4,1]</code></pre>
+<p>For the first two: <code>python3.12 -c 'print(7 // -2, 7 % -2)'</code> gives <code>-4 -1</code>;
+<code>perl -e 'print int(7 / -2), " ", 7 % -2'</code> gives <code>-3 -1</code>; <code>echo '[7 \ -2, 7 % -2]' | gp -q</code>
+gives <code>[-3, 1]</code>. Rust and Java give <code>-3 1</code> (truncation); Rust's <code>div_euclid</code> and
+<code>rem_euclid</code> are Euclidean. Raku's <code>7 div -2</code> and Lua's <code>7 // -2</code> give <code>-4</code>.</p>
+<p>Reason: as gp's <code>\</code> and <code>%</code>, with the invariant above. Status: built.</p>
+<h2 id="8-number-literals-0177-is-an-error">8. Number literals: <code>0177</code> is an error</h2>
+<p>Decided in generation 24, built in generation 40: a <code>0</code> followed by a digit is an error,
+and one <code>_</code> between two digits of a number is ignored
+(<code>1_000</code>; <code>1__2</code> and <code>1_</code> are errors). The same holds for <code>uint.read(s)</code> and
+<code>sint.read(s)</code> and for a template's <code>$uint</code> and <code>$sint</code>. Built in generation 66: a number
+in a base is spelled as the escape of a byte, <code>\x{7F}</code>, <code>\o{177}</code>, <code>\b{111_1111}</code>, a whole number
+of any size; <code>0_177</code>, octal up to then, is an error that names <code>\o{177}</code>.</p>
+<pre class="text"><code>[rud1] 0177  \\&gt; 1:1 error malformed number &#39;0177&#39;: a 0 before a digit (an octal number is \o{177})
+[rud1] [\o{177}, \x{DEAD_BEEF}, \b{1001}, 1_000_000, uint.read(&quot;1_000&quot;)]  \\&gt; [127,3735928559,9,1000000,1000]
+[rud1] 0x1F  \\&gt; 1:1 error malformed number &#39;0x1F&#39;: a number in a base is \x{1F}</code></pre>
+<p>Reason: the readings elsewhere
+disagree. <code>perl -e 'print 0177, " ", "0177" + 0'</code> gives <code>127 177</code>;
+<code>python3.12 -c 'print(0177)'</code> is a <code>SyntaxError</code> ("leading zeros in decimal integer literals
+are not permitted"); <code>echo '0177' | gp -q</code> gives <code>177</code>; Java gives <code>127</code>, Rust <code>177</code>, Raku <code>177</code> with a
+warning. The braces make every number in a base findable by a search (the author: "Most coders love
+grep-ability."). Status: built.</p>
+<h2 id="9-a-strict-bool">9. A strict <code>bool</code></h2>
+<p><code>true</code> and <code>false</code> are values of a type of their own, shown as <code>1</code> and <code>0</code>. A <code>bool</code> is no
+number: arithmetic on it is an <code>error</code>, <code>uint(b)</code> is 0 or 1, and a count of the elements that
+pass a test is <code>#[x | x &lt;- L, x &gt; 3]</code>. It is not compared with a number
+and it is no index (<code>v[true]</code> is an <code>error</code>). A condition takes a <code>bool</code> and nothing else: gp's
+<code>if(n%2, …)</code> is <code>if(0 != n % 2, …)</code>, <code>while(1, …)</code> is <code>while(true, …)</code>; <code>0</code>, <code>""</code> and <code>[]</code>
+are not false (decision 521).</p>
+<pre class="text"><code>[rud1] [uint(true) + uint(true), #[x | x &lt;- [1, 5, 7], x &gt; 3]]  \\&gt; [2,2]
+[rud1] true == 1  \\&gt; we exited &lt;error(&quot;true == 1: a bool and a uint are not compared (&#39;===&#39; tells whether two values are the same)&quot;)&gt; at 1:1
+[rud1] [10, 20][uint(true)]  \\&gt; 20</code></pre>
+<p><code>python3.12 -c 'print(True == 1, [10, 20][True])'</code> prints <code>True 20</code>; Rust and Java refuse
+<code>true + true</code> when compiled.</p>
+<p>Reason (the author, generation 29): "Built-ins should be strict where feasible"; a user's
+type may allow more. Status: built.</p>
+<h2 id="10--compares-values--asks-for-the-same-kind-too">10. <code>==</code> compares values, <code>===</code> asks for the same kind too</h2>
+<p><code>==</code> promotes numbers as arithmetic does and ignores the names of a list's fields. <code>===</code>
+is identity: exact numbers by value, a float only with a float, names included. Values of
+different families are an <code>error</code> under <code>==</code> and plainly not identical under <code>===</code>.</p>
+<pre class="text"><code>[rud1] [1 == 1.0, 1 === 1.0, 0.5 == 1/2, 4/2 === 2]  \\&gt; [1,0,1,1]
+[rud1] [[x: 1] == [1], [x: 1] === [1]]  \\&gt; [1,0]
+[rud1] &quot;1&quot; == 1  \\&gt; we exited &lt;error(&quot;\&quot;1\&quot; == 1: a str and a uint are not compared (&#39;===&#39; tells whether two values are the same)&quot;)&gt; at 1:1
+[rud1] &quot;1&quot; === 1  \\&gt; 0</code></pre>
+<p>Reason: <code>===</code> is gp's identity; <code>==</code> promotes because otherwise <code>0.1 - 1/10 == 0</code> and
+<code>0.1 == 1/10</code> would disagree. On the <code>error</code> (generation 29): "let's not allow <code>==</code> between
+differently typed values, unless they are really of the exact same family". Status: built;
+the spec still marks the rule of <code>===</code> as proposed. A float and a rational are separate types
+for now, so <code>0.1 === 1/10</code> is 0 (generation 49; open whether they are one value); in the
+prototype <code>0.1</code> is an error (section 5).</p>
+<h2 id="11-comparisons-chain-in-one-direction">11. Comparisons chain, in one direction</h2>
+<p><code>a &lt; b &lt;= c</code> means <code>a &lt; b</code> and <code>b &lt;= c</code>, with <code>b</code> evaluated once. A chain mixes <code>&lt;</code>, <code>&lt;=</code>,
+<code>==</code> or <code>&gt;</code>, <code>&gt;=</code>, <code>==</code>, never both directions; <code>!=</code>, <code>!==</code> and <code>&lt;=&gt;</code> do not chain.</p>
+<pre class="text"><code>[rud1] [1 &lt; 2 &lt; 3, 3 &gt; 2 &gt; 1, 1 &lt;= 1 &lt; 2]  \\&gt; [1,1,1]
+[rud1] 1 &lt; 3 &gt; 2  \\&gt; 1:7 error comparison chain mixes &#39;&lt;&#39; and &#39;&gt;&#39;
+[rud1] 1 &lt; 2 != 3  \\&gt; 1:7 error &#39;!=&#39; doesn&#39;t chain</code></pre>
+<p><code>echo '3 &gt; 2 &gt; 1' | gp -q</code> gives <code>0</code> (the result of <code>3 &gt; 2</code> against 1);
+<code>python3.12 -c 'print(1 &lt; 3 &gt; 2)'</code> prints <code>True</code>; Perl chains since 5.32, also
+in both directions: <code>perl -e 'print 1 &lt; 3 &gt; 2'</code> prints <code>1</code>. C++ compares a <code>bool</code>
+with the third operand, and clang 21 refuses <code>3 &gt; 2 &gt; 1</code> by default (<code>-Wparentheses</code>);
+rustc refuses a chain (“comparison operators cannot be chained''), javac a <code>boolean</code> against a
+number, GHC <code>1 &lt; 2 &lt; 3</code> (“cannot mix''); Raku and Julia chain, as Perl, in both directions.</p>
+<p>Status: built.</p>
+<h2 id="12-errors-are-states-of-a-value-not-exceptions">12. Errors are states of a value, not exceptions</h2>
+<p>A result is a value, or a state with an origin. <code>undef</code> is soft: it is bound, passed and
+combined, and the code around it goes on. <code>error</code> is hard: it ends each sequence, loop and
+call around it, up to the nearest <code>guard(x, h)</code>, which gives <code>h</code> in its place. Each call
+that an <code>error</code> ends is added to its stack. There is no <code>throw</code>, no <code>try</code>, no <code>return</code>. A
+state is no value: it has no literal and no <code>==</code>; <code>is_defined(x)</code> asks.</p>
+<pre class="text"><code>[rud1]
+my
+( half(n)= if(0 == n % 2, n // 2, error(&quot;odd&quot;))
+, twice_half(n)= 2 * half(n)
+);
+say(guard(twice_half(7), -1));
+my(r= max([]));
+say(is_defined(r));
+twice_half(7);
+say(&quot;not reached&quot;)</code></pre>
+<p>Output:</p>
+<pre class="text"><code>-1
+0
+we exited &lt;error(&quot;odd&quot;)&gt; at 2:35
+  in (half at 3:22, twice_half at 8:1)</code></pre>
+<p>A program whose last value is not defined ends with such a message and exit status 1.</p>
+<p>Reason (history, generation 11): the author, "evaluation should stop at <code>1/0</code>", with a
+full disk as the case (<code>write(f, d); say("saved")</code> must not say "saved"). "It is exception
+behaviour done with values: no new mechanism, <code>guard</code> is the catch, a defer the cleanup."
+Status: built; the stopping is proved in Lean per evaluation step. Not built: <code>state(x)</code>,
+<code>origin(x)</code>, a handler that is a function receiving the failure. A run-time error of an
+operator says why since generation 31 (<code>1/0</code> is <code>error(1̈ / 0: division by zero)̈</code>); <code>2 - 3</code>
+in section 6 is the state <code>underflow</code>, which carries no message.</p>
+<h2 id="13-positions-count-from-0-a-literal-negative-one-from-the-end">13. Positions count from 0, a literal negative one from the end</h2>
+<p>Lists are indexed from 0; a literal <code>-N</code> means <code>#__ - N</code>, where <code>__</code> is the list being
+indexed, so <code>v[-1]</code> is the last element; a computed position below 0 is the state <code>underflow</code>, not the
+end of the list as in Python; several indices gather. A position
+out of range is an <code>error</code>, reading as well as storing.</p>
+<pre class="text"><code>[rud1] my(v= [10, 20, 30, 40]); [v[0], v[-1], v[0, -1]]  \\&gt; [10,40,[10,40]]
+[rud1] [10, 20, 30][3]  \\&gt; we exited &lt;error(&quot;[10, 20, 30][3]: index 3 is outside 0 .. 2&quot;)&gt; at 1:1</code></pre>
+<p>It departs from gp: <code>echo '[10, 20, 30][1]' | gp -q</code> gives <code>10</code>. Status: built. A 1-based
+list type for translated gp code, <code>vector</code>, is proposed.</p>
+<h2 id="14-ranges-hold-both-ends-take-a-step-after--and-splice">14. Ranges hold both ends, take a step after <code>;</code>, and splice</h2>
+<p><code>[a..b]</code> runs from <code>a</code> to <code>b</code>, both included; backwards it is empty. A step follows a <code>;</code>
+and its sign is the direction: <code>[a..b;s]</code>. A range among the other elements of a list is
+spliced in, so <code>[1, 3..9]</code> is 1, then 3 to 9, and not the odd numbers. The same forms work
+as an index; a stepped range stands alone in its brackets.</p>
+<pre class="text"><code>[rud1] [[1..4], [4..1], [1, 3..5, 9]]  \\&gt; [[1,2,3,4],[],[1,3,4,5,9]]
+[rud1] [[1..9;2], [10..1;-3]]  \\&gt; [[1,3,5,7,9],[10,7,4,1]]
+[rud1] my(v= [10, 20, 30, 40, 50]); [v[1..3], v[4..0;-2]]  \\&gt; [[20,30,40],[50,30,10]]</code></pre>
+<p><code>python3.12 -c 'print(list(range(1, 4)))'</code> prints <code>[1, 2, 3]</code>.</p>
+<p>Reason: the step mimics gp's <code>forstep</code>; the older spelling with a second element
+(<code>[7, 5..0]</code>) went because it "is just ugly, is much harder to explain" (the author,
+generation 26). The splice is the rule an index had already (<code>v[1, 3..5]</code>). Status: built
+(generation 27). Open: a right-open range, omitted bounds.</p>
+<h2 id="15-lists-and-comprehensions-are-lazy">15. Lists and comprehensions are lazy</h2>
+<p>A range and a comprehension <code>[e | x &lt;- L, filter, …]</code> give their elements when asked, so a
+list may be endless (<code>oo</code> as a bound).</p>
+<pre class="text"><code>[rud1] [x^2 | x &lt;- [1..oo], 0 == x % 3][0..3]  \\&gt; [9,36,81,144]</code></pre>
+<p>gp's comprehensions are strict. Status: built by name: an element is computed again each
+time it is asked for. The spec's rule (computed once, then kept) is not built.</p>
+<h2 id="16-an-operator-is-a-function-with-a-name">16. An operator is a function with a name</h2>
+<p>A binary operator has the name <code>_op_</code>, one token without spaces, and the name is its
+function as a value. The names are sealed: a script can't rebind <code>_+_</code>.</p>
+<pre class="text"><code>[rud1] [fold(_+_, [1..10]), _*_(6, 7), scan(_+_, [3, 1, 2])]  \\&gt; [55,42,[3,4,6]]
+[rud1] my(_+_= 5); 1  \\&gt; 1:4 error &#39;_+_&#39;: names starting with &#39;_&#39; belong to the language</code></pre>
+<p>Reason: operators are calls of internal names; the names <code>_+_</code> are those of gp's library, libpari (gp's own syntax has no such form).
+The spec's example of what sealing prevents: <code>_+_</code> rebound to a concatenation. Status: the
+binary names as values are built; the prefix names (<code>-_</code>, <code>#_</code>) and operators declared by
+a module are not.</p>
+<h2 id="17-placeholders-make-a-function-of-an-argument">17. Placeholders make a function of an argument</h2>
+<p><code>_1</code>, <code>_2</code>, … inside an argument turn that argument into a function of as many parameters
+as the highest number. The function is the whole argument the placeholder stands in, and a
+call around a placeholder takes it as its own argument: <code>h(_1) + 1</code> is <code>h(x -&gt; x) + 1</code>.
+The second line shows both readings; here they happen to agree, and the compiler still warns
+on <code>h(_1) + 1</code>, since a bare placeholder argument of a call that is itself an operand or an
+argument is seldom meant so. Scala's <code>List(1, 2, 3).map(_ * 10)</code> gives
+<code>List(10, 20, 30)</code>, Elixir's <code>Enum.map([1,2,3], &amp;(&amp;1 * 10))</code> gives <code>[10, 20, 30]</code>.</p>
+<pre class="text"><code>[rud1] [sum([1..10], _1^2), fold(_1 + 2 * _2, [1, 2, 3])]  \\&gt; [385,11]
+[rud1] my(h(f)= f(1)); [h(_1 + 1), h(_1) + 1]  \\&gt; [2,2]
+1:29 warning: &#39;_1&#39; alone makes the argument of &#39;h&#39; the function x -&gt; x: for a function of the whole, write &#39;x -&gt; …&#39; around the call [W0e969d]</code></pre>
+<p>Where it matters, the arrow form names the variable: <code>d -&gt; h(d) + 1</code>. The handler of
+<code>guard</code> is the exception: <code>_1</code> there is the failed result itself (<code>guard(v[i], str(_1))</code>).</p>
+<p>Reason (history, generation 12): rud1 is to be as short as gp, whose iterator forms
+(<code>sum(i=1, 10, i^2)</code>) win otherwise; on the extent: "no rule without a delimiter is right
+in every nesting, this one is short". Status: built. A policy switch on placeholders is
+proposed.</p>
+<h2 id="18-rest-parameters-spreads-named-arguments">18. Rest parameters, spreads, named arguments</h2>
+<p>One parameter, anywhere in the list, may collect the arguments the others leave: <code>v[...]</code>.
+An argument <code>L[...]</code> spreads a list into a call. Every parameter can be given by name
+(<code>z: 9</code>); the names bind first, then the unnamed arguments fill what is left.</p>
+<pre class="text"><code>[rud1]
+my(f(a, v[...], z= 0)= [a, v, z]);
+[f(1), f(1, 2, 3), f(1, 2, z: 9), f([4, 5][...])]  \\&gt; [[1,[],0],[1,[2,3],0],[1,[2],9],[4,[5],0]]</code></pre>
+<p>The binding is resolved when the program is compiled, wherever the callee is known (section
+4). A rest takes unnamed arguments only, so a mistyped name is reported, never absorbed;
+there is no options bag. Status: built. Decided, not built: binding by type (<code>sort(cmp, L)</code>
+accepted with a warning that names the order).</p>
+<h2 id="19-defer">19. <code>defer</code></h2>
+<p><code>defer(s)</code> runs <code>s</code> when the enclosing block ends, however it ends, also by an <code>error</code>. A
+block is a <code>{…}</code> or a loop; a <code>defer</code> in a loop body runs at the end of each round. Several
+run newest first.</p>
+<pre class="text"><code>[rud1]
+{ defer(say(&quot;closed&quot;)); say(&quot;work&quot;); 5 }</code></pre>
+<p>Output:</p>
+<pre class="text"><code>work
+closed
+5</code></pre>
+<p>A deferred function is called with the block's result, however the block ended; at an
+<code>exit</code> it gets <code>undef</code>.</p>
+<pre class="text"><code>[rud1] my(log(r)= say(&quot;result &quot;, r)); { defer(log); 5 }  \\&gt; result 5, then 5
+[rud1] { defer((r) -&gt; say(&quot;got &quot;, is_defined(r))); exit(3) }  \\&gt; got 0</code></pre>
+<p>Reason (spec): a block is entered one way, at its top; "<code>defer</code> exists because there are
+many ways out". Status: built. <code>amend(f)</code>, a defer that replaces the block's result, is
+proposed.</p>
+<h2 id="20-long-names-are-the-names-short-ones-come-from-a-module">20. Long names are the names; short ones come from a module</h2>
+<p>The names of the language are full words, taken from the standards where they have them
+(the Unicode Standard's toUppercase is <code>str.to_uppercase</code>). A function that makes a text
+has <code>str.</code> in front; <code>to_</code> marks a new value, <code>is_</code> a question.</p>
+<pre class="text"><code>[rud1] [str.to_uppercase(&quot;abc&quot;), is_defined(max([]))]  \\&gt; [&quot;ABC&quot;,0]
+[rud1] str.uc(&quot;abc&quot;)  \\&gt; 1:1 error no function &#39;str.uc&#39;
+[rud1] alias {isdef: is_defined}; isdef(max([]))  \\&gt; 0</code></pre>
+<p>Reason (the author, generation 18): "The long names are the main names, the ones that the
+compiler will put in a normalized transformation of a script"; "<code>str.to_uppercase</code> does
+send the message more, that it doesn't change in-place"; "shortnames leave the <code>core</code>, so
+an <code>alias.perl</code> module, or such, can bring perlish shortnames." Status: the names are
+built. Modules are not: today a script gives its own short names with <code>alias {…}</code>, as in
+the last line, a dotted one too (<code>alias {uc: to_uppercase}; str.uc("abc")</code> is <code>"ABC"</code>).</p>
+<h2 id="21-a-str-is-code-points-bytes-is-another-type-no-si">21. A <code>str</code> is characters; <code>bytes</code> is another type; <code>s[i]</code> is a character</h2>
+<p>A <code>str</code> is always well-formed UTF-8, and its length counts characters as Unicode defines
+them, the extended grapheme clusters (UAX #29): <code>é</code> written as <code>e</code> and a combining accent, a flag,
+an emoji with its skin tone each count one. <code>bytes</code> is raw, with
+its own literal <code>b"…"</code>. <code>s[i]</code> is a character, a <code>str</code>, and a slice <code>s[a..b]</code> takes characters and is a <code>str</code>,
+to read and to assign; the code points are <code>str.to_codepoints(s)</code>; <code>b[i]</code> of a <code>bytes</code> value is one byte, a number, so a <code>str</code> and a
+<code>bytes</code> value act as lists of their elements, <code>max</code> and <code>sort</code> included (<code>sum</code> of the bytes).
+Text is joined with <code>~</code>; <code>+</code> is never defined for it, and no text turns into a number by
+itself (<code>uint.read("42")</code>, <code>str(42)</code>; <code>uint("42")</code> is the code points <code>[52,50]</code>). A <code>str</code> is never normalized unasked.</p>
+<pre class="text"><code>[rud1] [#&quot;hé&quot;, #b&quot;h\x{c3}\x{a9}&quot;]  \\&gt; [2,3]
+[rud1] [str.to_codepoints(&quot;hé&quot;), str.to_characters(&quot;hé&quot;)]  \\&gt; [[\x{68},\x{e9}],[&quot;h&quot;,&quot;é&quot;]]
+[rud1] [&quot;héllo&quot;[1], &quot;héllo&quot;[1..2], b&quot;abc&quot;[1]]  \\&gt; [&quot;é&quot;,&quot;él&quot;,\x{62}]
+
+[rud1] &quot;abc&quot; + &quot;def&quot;  \\&gt; we exited &lt;error(&quot;\&quot;abc\&quot; + \&quot;def\&quot;: no &#39;+&#39; for a str and a str&quot;)&gt; at 1:1</code></pre>
+<p><code>perl -e 'print length("hé")'</code> and <code>echo '#"hé"' | gp -q</code> give <code>3</code>;
+<code>python3.12 -c 'print(len("hé"))'</code> gives <code>2</code>. Rust's <code>"hé".len()</code> is <code>3</code>, its
+<code>.chars().count()</code> <code>2</code>, <code>s[0]</code> is a compile error, and a slice counts bytes: <code>&amp;s[0..3]</code> of
+<code>"héllo"</code> is <code>hé</code>, <code>&amp;s[1..2]</code> panics inside the <code>é</code>; Python's <code>"héllo"[1:3]</code> is <code>él</code>; Java's <code>length()</code> counts UTF-16
+units, 2 for one code point above FFFF.</p>
+<p>Reason: for <code>s[i]</code> the spec gives the rule only; for <code>+</code> it names the trap of one operator
+that adds and joins. Status: built: <code>str</code> and its <code>str.</code> family; of <code>bytes</code> the literal,
+<code>#</code>, the index, <code>~</code>, the comparisons and <code>str(b)</code>, the checked way to a <code>str</code>. Not built:
+<code>str.to_graphemes</code>, <code>bytes(s)</code>, the compile error for a <code>str</code> joined with <code>bytes</code> (an
+<code>error</code> when run, today).</p>
+<h2 id="22-case-mapping-is-the-unicode-standards-full-one">22. Case mapping is the Unicode Standard's full one</h2>
+<p><code>str.to_uppercase</code>, <code>str.to_lowercase</code> and <code>str.to_casefold</code> use the full mappings of the
+Standard (data of Unicode 17.0.0): a result can be longer than its input, and lowercasing
+follows Final_Sigma. No language or locale setting changes a result.</p>
+<pre class="text"><code>[rud1] [str.to_uppercase(&quot;straße&quot;), str.to_lowercase(&quot;ΟΔΟΣ&quot;)]  \\&gt; [&quot;STRASSE&quot;,&quot;οδος&quot;]</code></pre>
+<p><code>perl -CS -Mutf8 -e 'print lc("ΟΔΟΣ")'</code> gives <code>οδοσ</code>;
+<code>python3.12 -c 'print("ΟΔΟΣ".lower())'</code> gives <code>οδος</code>. Rust's <code>to_lowercase</code> gives
+<code>σας</code> for <code>ΣΑΣ</code>, and Java's too with <code>Locale.ROOT</code>; Java's result depends on the locale
+(<code>"I"</code> lowercases to <code>ı</code> in Turkish).</p>
+<p>Reason (history, generation 18): a simple uppercase leaves <code>straße</code> as <code>STRAßE</code>, "so a
+lookup of an uppercased key misses"; without Final_Sigma "every Greek word ending in sigma
+is misspelled". The price: lowercasing no longer works piece by piece. On locale: "stay
+away from <code>locale</code> for now, just don't make it impossible". Status: built (generation 19).
+Not built: <code>str.to_titlecase</code> of a whole text (an <code>error</code> that says so), the rules of a
+language; <code>str.is_casefolded</code> is built since generation 67 (YN).</p>
+<h2 id="23-a-byte-escape-has-braces">23. A byte escape has braces</h2>
+<p>A byte is <code>\x{89}</code> in hex, <code>\o{211}</code> in octal or <code>\b{10001001}</code> in binary, and values are
+shown the same way. <code>\x89</code> without braces is a compile error. <code>\0</code> to <code>\7</code> are one digit
+each, and a digit right after one is a compile error too (<code>"\012"</code>).</p>
+<pre class="text"><code>[rud1] b&quot;\x{89}PNG&quot; ~ b&quot;\o{15}\b{00001010}&quot;  \\&gt; b&quot;\x{89}PNG\x{0d}\x{0a}&quot;
+[rud1] b&quot;\x89PNG&quot;  \\&gt; 1:1 error \x needs braces: \x{...}
+[rud1] [b&quot;\x{0}&quot;, b&quot;\0&quot;, b&quot;\o{0}&quot;, b&quot;\b{0}&quot;]  \\&gt; [b&quot;\x{00}&quot;,b&quot;\x{00}&quot;,b&quot;\x{00}&quot;,b&quot;\x{00}&quot;]</code></pre>
+<p><code>perl -e 'print "\012" eq "\n" ? "LF" : "other"'</code> prints <code>LF</code>. Java has no <code>\x</code> (“illegal escape character''); Rust refuses
+<code>"\x89"</code> in a string (“out of range hex escape'') and writes <code>\u{89}</code> with braces.</p>
+<p>Reason: the author, generation 23: "Let's make braces required for now"; they balance,
+which a <code>t{…}</code> literal needs (section 25). <code>"\012"</code> would be three bytes here and is one
+byte elsewhere, so it is refused. Status: built.</p>
+<h2 id="24-reading-changes-nothing">24. Reading changes nothing</h2>
+<p>A read gives what came: no line end taken off, no CR dropped, no signature removed, nothing
+substituted. <code>read_line()</code> gives the text up to and including the next LF, <code>undef</code> at the
+end of input, and an <code>error</code> for a piece that is not well-formed UTF-8.</p>
+<pre class="text"><code>[rud1]
+my(a= read_line(), b= read_line(), c= read_line()); [a, b, is_defined(c)]</code></pre>
+<p>Run as <code>printf 'quit\r\nlast' | rud1 file.rud</code>. Output:</p>
+<pre class="text"><code>[&quot;quit\x{0d}\x{0a}&quot;,&quot;last&quot;,0]</code></pre>
+<p>With the bytes <code>quit</code> CR LF in a file <code>f.txt</code>,
+<code>python3.12 -c 'print(repr(open("f.txt").readline()))'</code> prints <code>'quit\n'</code>.</p>
+<p>Reason (the author, generation 20): "Never change any data, that is for the user to
+decide." It departs, knowingly, from the Unicode Standard's recommendation to treat CR, LF,
+CRLF and NEL alike on input. Status: the principle is decided; <code>read_line()</code> on standard
+input is built; the reader in sends cut by time, the other verbs and files are not.</p>
+<h2 id="25-a-template-is-a-checked-literal">25. A template is a checked literal</h2>
+<p><code>unpack</code> reads bytes by a template: Perl's <code>pack</code> codes, extended with sets, repeats,
+alternatives and named patterns. A template is a literal <code>t{…}</code>, a value of its own type
+and no <code>str</code>. It is parsed when the program is compiled, so a wrong template is a compile
+error. The check goes beyond syntax: two variants of a <code>|</code> that can read the same text are
+refused, with the shortest such text in the message; <code>||</code> ("or else") lets the first win.</p>
+<pre class="text"><code>[rud1] unpack(t{magic:a4 w:n}, b&quot;\x{89}PNG\x{00}\x{10}&quot;)  \\&gt; [magic:b&quot;\x{89}PNG&quot;,w:16]
+[rud1] unpack(t{n a[=k]}, b&quot;A&quot;)  \\&gt; 1:8 error template 1:5: the count =k is not named before its use</code></pre>
+<pre class="text"><code>[rud1]
+unpack(t{%[0-9A-Fa-f]+ | %[0-9]+}, b&quot;15&quot;)</code></pre>
+<p>Output:</p>
+<pre class="text"><code>1:8 error template 1:1: variants 1 and 2 can read the same text, &quot;1&quot;: make one of them narrower, or write &#39;||&#39; where the first is to win</code></pre>
+<p>Reason (history): a template in a cooked <code>"…"</code> was unreadable (<code>a["\n"]</code> became
+<code>"a[\"\\n\"]"</code>), hence the raw literal; the check on variants has to hold for every input,
+as a search over short texts "would leave a silent hole". Status: built: the literal, the
+parser and its checks (generations 23 to 28), <code>unpack(t, b)</code> on a <code>bytes</code> value (generation
+29). Built since: <code>unpack(t)</code> on standard input (generation 40), <code>pack</code> (generation 41). How strict the check on variants is, is
+proposed.</p>
+<h2 id="26-unpack-never-tries-again">26. <code>unpack</code> never tries again</h2>
+<p>The reader goes through the data once. A <code>|</code> takes the variant that reads furthest, not the
+first listed. A repeat takes what it can and gives nothing back. The template has to cover
+the data: bytes left over are an <code>error</code>, unless it ends in <code>x*</code>, which takes them.</p>
+<pre class="text"><code>[rud1] unpack(t{&quot;foo&quot; | &quot;foot&quot;}, b&quot;foot&quot;)  \\&gt; [b&quot;foot&quot;]
+[rud1] unpack(t{C x*}, b&quot;AB&quot;)  \\&gt; [65,b&quot;B&quot;]</code></pre>
+<pre class="text"><code>[rud1]
+unpack(t{%[a-z]* &quot;z&quot;}, b&quot;abz&quot;)</code></pre>
+<p>Output:</p>
+<pre class="text"><code>we exited &lt;error(&quot;unpack(t{%[a-z]* \&quot;z\&quot;}, b\&quot;abz\&quot;): template 1:9: the data ends inside the literal \&quot;z\&quot;: 1 wanted at byte 3, 0 left&quot;)&gt; at 1:1</code></pre>
+<p>In Perl: <code>perl -e '"foot" =~ /foo|foot/; print $&amp;'</code> gives <code>foo</code>;
+<code>perl -e 'print unpack("C", "AB")'</code> gives <code>65</code>, the <code>B</code> ignored;
+<code>perl -e 'print "abz" =~ /^[a-z]*z$/ ? "match" : "no match"'</code> gives <code>match</code>.</p>
+<p>Reason (history, generation 25): a model of a reader that tries variants showed "the cost
+doubling per nesting level"; a reader that never tries again is a function of the input,
+which makes the check of section 25 possible. The price: a grammar written for a parser
+that tries again may need rewording. Status: built (generation 29); parts of the rules are
+proposed.</p>
+<h2 id="27-no-silent-limits">27. No silent limits</h2>
+<p>Decided in generation 29, as a first principle. The author: "It is one of the reason why
+Lean 4 is the primary host-language: to catch such things. Will lead to interesting
+discussions: no silent limits." Its first rule: a text is a finished value, so a cast or a
+format whose text can be endless (a rational in decimal: <code>1/9</code>) is refused when compiled
+unless the call gives a limit; by the type, not by the value.</p>
+<p>Status: decided; the refusal when compiled is not built. The prototype still has silent
+cases; an audit of generation 30 lists twelve. Two of them, a value dropped without a word,
+are an <code>error</code> since generation 40 (decided in generation 34):</p>
+<pre class="text"><code>[rud1] mut my(a, b); [a, b]= [1, 2, 3]; [a, b]  \\&gt; we exited &lt;error(&quot;destructuring [a, b]: more than 2 values for 2 names&quot;)&gt; at 1:15
+[rud1] mut my(v= [0, 0, 0]); v[0, 1]= [5, 6, 7]; v  \\&gt; we exited &lt;error(&quot;scatter assignment: more than 2 values for 2 positions&quot;)&gt; at 1:23</code></pre>
+<p>Others on that list: a type word that is not used (section 4), the binary float of section
+5 (since generation 49 an error where it would round), and an old <code>[1, 3..9]</code> that changed its meaning with section
+14. What counts as a silent limit (a value dropped, an argument ignored, a meaning changed,
+a digit cut) is not written down yet.</p>
+<h2 id="28-every-message-has-an-id">28. Every message has an id; <code>--explain</code> tells the ways out</h2>
+<p>A message with more than one way out ends with an id, <code>E0</code> and five hex digits of the SHA-1
+of its dotted name (a warning: <code>W0</code>, of SHA-256), so a changed text keeps its id.
+<code>rud1 --explain ID</code> prints the explanation, written beside the code that raises the message;
+a policy names a warning by its id or its dotted name.</p>
+<pre class="text"><code>[rud1] t{[t{=n:C}, t{=n:C}]}  \\&gt; 1:1 error a template of parts: both parts name n [E03d0dc]</code></pre>
+<p><code>rud1_run --explain E03d0dc</code> starts with <code>E03d0dc template.parts.same_name</code> and lists the ways
+out. Rust has the same idea (<code>rustc --explain E0308</code>), its ids from a counter.
+Reason (spec, principles): ids come from their origin, “predictable, good for parallelization,
+lock-free'' (the author). Status: built.</p>
+<h2 id="29-types-are-settled-when-compiled">29. Types are settled when compiled</h2>
+<p>Every type is known before the program runs. A parameter without a type word is <code>auto</code>, an
+interface: the compiler makes the function's code for the argument types of each call, as C++
+does for a template and Julia for a method. A value's type is looked at when the program runs
+only where the source can't tell it: an element of a mixed list read by a computed index, the
+result of <code>unpack</code>, and <code>str</code>, <code>say</code> or <code>==</code> on those. Python, Perl and gp settle types
+as they run. Reason (spec, principles): whatever can be solved at compile time is. Status:
+decided; the checks of declared types are built (section 4).</p>
+<h2 id="30-sub-types">30. Sub-types: nothing is fitted without a word</h2>
+<p>A refinement (<code>type Pct = uint {0..100}</code>), a nominal type (<code>type Id = new sint</code>, no cast
+either way) and an extension (the parent's value and more: a <code>template</code> is its text and its
+tree). A sub-type stands for its parent only where its declaration says so; nothing is inherited
+by default, and the slot's type picks the operation. Haskell's <code>newtype</code> and Rust's
+newtypes are the second; Java's subclasses fit their parent
+always. Reason (the author): “Built-ins should be strict where feasible''; a user can make a lax
+variant. Status: decided; refinements built (<code>Pct(150)</code> is an <code>error</code>, a slot <code>Pct p</code> checks each
+value), while the prototype still lets a <code>Pct</code> pass where a <code>uint</code> is wanted.</p>
+<h2 id="31-floats-and-overflow">31. Floats of infinite precision; a type picks its overflow</h2>
+<p>The default float has no fixed precision, as <code>uint</code> has no fixed size; a native <code>f64</code> or
+<code>i64</code> is there for whoever asks for it. A type declares what overflow gives: <code>sat</code>, <code>wrap</code>
+or <code>oo</code>, and the state is always <code>overflow</code>. C++, Java, Perl and Python compute in binary64,
+Rust and C++ in fixed widths unless asked; Rust names the wrap per operation
+(<code>wrapping_sub</code>). Reason (the author, generation 29): “Types are by default of infinite
+precision.'' Status: decided; today a float is binary64 and stops where it would round
+(section 5).</p>
+<h2 id="32-a-type-has-a-number-of-values">32. A type has a number of values</h2>
+<p><code>#bool()</code> is 2. A collection, a “multi'', has an index type: indexed by its order it is an
+array, by its value a map; an array only where the type's values can be counted from a first
+one. The declaration picks, else the compiler infers it from what the code does. Lua has one
+table for both. Status: decided.</p>
+<h2 id="33-apx">33. An approximation is a state: <code>apx</code></h2>
+<p>A value that was rounded (a float that rounds, a result of a foreign library) carries the state
+<code>apx</code>, shown with it (<code>0.333… &lt;apx&gt;</code>), and passes it to every value made from it. A
+binding module removes it by declared rules, for libpari by the type of a result or by a
+predicate over the call (gp's <code>ispseudoprime(x, {flag})</code>: a 0 is exact, a 1 stays <code>apx</code>).
+C++, Java, Perl, Python and gp say nothing. Status: decided (generation 53, U4).</p>
+<h2 id="34-pending">34. <code>async</code> is dataflow: <code>pending</code></h2>
+<p><code>async(e)</code> gives the state <code>pending</code>; an operation on a <code>pending</code> value gives
+<code>pending</code>, and the program waits only at <code>await</code>, at a read or a write, and at a condition.
+async/await asks for an <code>await</code> at
+each use. Status: decided.</p>
+<h2 id="35-capabilities">35. Capabilities are bindings</h2>
+<p>The top level holds <code>stdout</code>, <code>fs</code>, <code>net</code> and the other root capabilities as ordinary
+names. A module is evaluated without them and sees only what it is handed, so a module given none
+is provably pure. A WASI module sees only the directories its host grants: a C program built by
+<code>zig cc -target wasm32-wasi</code> that opens <code>data/a.txt</code> gets “No such file or directory'' under
+<code>wasmtime run</code>, and reads the file under <code>wasmtime run --dir=.</code>. In C++, Rust, Java, Perl,
+Python and gp any code may open a file. Status: decided.</p>
+<h2 id="36-certified-modules">36. A module is accepted by a proof</h2>
+<p><code>my(s= use("sort", Sorting))</code> accepts the module only if its stored proof checks against the
+specification <code>Sorting</code>, chosen by the importer (the result sorted and a permutation). The
+checker is the Lean kernel, against rud1's semantics in Lean. None of the languages named here
+does it at an import. Reason: “no unit
+tests needed''; the price, a proof covers only what the specification says. Status: decided.</p>
+<h2 id="37-regions-and-taint">37. Regions and taint</h2>
+<p>A region, <code>SOx_( … )_SOx</code>, runs only while its conditions hold. A value made in it is
+tainted, also through control flow (<code>if(t &gt; 100, 1, 0)</code>), and goes only to a sink that
+accepts the taint; the compiler infers it where it can, else the value carries it as a state. The
+names (<code>SOx</code>, <code>PI</code>) are the coder's. Perl's <code>-T</code> taints input only and lets a regex
+clean it; Reason (spec, §10): what a
+run-time design for Perl (Hounding) catches late, rud1 is to refuse when compiled. Status: decided.</p>
+<h2 id="38-code-as-data">38. Code as data without eval</h2>
+<p>A <code>sym</code> parameter gets the expression with the caller's names; <code>'(a + b*2)</code> is an
+<code>expr</code>. There is no <code>eval</code>, of a text or of an <code>expr</code>, and no macro language: the
+compiler folds every call whose inputs are known, also one that returns an <code>expr</code>. Zig's <code>comptime</code> folds; Perl and Python have <code>eval</code>, Rust
+has macros. Reason: static analysis covers the code fully. Status: decided; <code>lazy</code> and
+<code>sym</code> parameters are built.</p>
+<h2 id="39-parallel-without-locks">39. Parallel without locks</h2>
+<p>gp's names, <code>parapply</code>, <code>parsum</code>, <code>parfor</code>, take pure arguments only, and a reduction
+runs in a fixed tree order, so a sum of floats gives the same result on any number of threads.
+Shared data is immutable and a <code>{mut}</code> buffer can't cross threads: no locks in user code.
+Rust keeps a mutable value on one thread too; C++, Java and Python leave the locks and the order
+to the coder. Status: decided.</p>
+<h2 id="40-a-module-is-a-value">40. A module is a value</h2>
+<p><code>use</code> runs when the program is compiled and gives the module, a list of named fields; a
+module that ends undefined or <code>false</code> is refused, Perl's rule without its truthiness. A module
+can't reach <code>__MAIN__</code>; there is no <code>our</code>, no <code>local</code>, no <code>CORE::GLOBAL</code>.
+<code>CORE.say</code> is the language's <code>say</code>, as Perl's <code>CORE::say</code>. Python's modules are objects
+that any code can change. Status: decided; the startup module and <code>__CORE__</code> are built.</p>
+<h2 id="41-safe-by-default">41. Safe by default</h2>
+<p>The executable does only safe, dry-run things unless a flag allows more. No language above has
+such a default. Reason (decision 58): the coder decides when a program may act. Status: decided.</p>
+<h2 id="42-rud1-is-its-own-reference">42. rud1 is its own reference</h2>
+<p>The reference implementation is written in rud1. A build asks its host which parts it has
+ported, prefers those for speed, and checks each port against the rud1 one on generated data.
+C++, Rust and Java have a standard, or a compiler, as the reference.
+Status: decided; today's reference is the Lean prototype.</p>
 </body>
 </html>
