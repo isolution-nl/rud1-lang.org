@@ -74,7 +74,6 @@ The check that `my(uint x= -1)` does not make, written out:
 | `my(f(lazy v[...])= 1); f(1, 2)` | decided | `1:6 error not in the core yet: a lazy or sym rest parameter` | `my(f(v[...])= #v); f(1, 2) \\ 2` |
 | `my(f(sym v[...])= 1); f(1, 2)` | proposed | `1:6 error not in the core yet: a lazy or sym rest parameter` | — |
 | `my(f(lazy x= 1)= x); f()` | decided | `1:6 error not in the core yet: default on a lazy or sym parameter` | — |
-| `my(f(lazy x)= x + x); f({say("once"); 2})` | decided | `once`<br>`once`<br>`4` (by name: decided is by need, memoized, and a compile error for an argument with an effect) | `my(f(x)= x + x); f({say("once"); 2})` prints `once`<br>`4` |
 | `my(sq(x)= x^2); sq` | decided | `sq` (decided: `(x) -> x^2`) | — |
 | `x -> x^2` | decided | `(lam (params x) (pow x 2))` (the core term) | — |
 | `my(sint diff(x, y)= x - y); diff(3, 5)` | decided | `-2` (the return type is built; variants by return type are not) | `my(diff(x, y)= +x - y); diff(3, 5) \\ -2` |
@@ -262,10 +261,7 @@ forms with gp's names.
 | Form | Status | Today | Meanwhile |
 |---|---|---|---|
 | `async(1)` | proposed | `1:1 error undeclared 'async'` (also `await`) | — |
-| `parapply(x -> x^2, [1, 2, 3])` | proposed | `1:1 error undeclared 'parapply'` (also `parvector`, `parsum`, `parselect`) | \(a\) below |
 | `parfor(i <- [1..3], say(i))` | proposed | `1:1 error undeclared 'parfor'` | `for(i <- [1..3], say(i)); 0` prints `1`<br>`2`<br>`3`<br>`0` |
-
-- \(a\) `[rud1] [x^2 | x <- [1, 2, 3]] \\ [1,4,9]`
 
 ## The symbolic layer (spec §9)
 

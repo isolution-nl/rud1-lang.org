@@ -348,12 +348,6 @@ the type pass of spec §10 adds beyond that (dispatch, variants, binding by type
 <td style="text-align: left;">—</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>my(f(lazy x)= x + x); f({say("once"); 2})</code></td>
-<td style="text-align: left;">decided</td>
-<td style="text-align: left;"><code>once</code><br /><code>once</code><br /><code>4</code> (by name: decided is by need, memoized, and a compile error for an argument with an effect)</td>
-<td style="text-align: left;"><code>my(f(x)= x + x); f({say("once"); 2})</code> prints <code>once</code><br /><code>4</code></td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>my(sq(x)= x^2); sq</code></td>
 <td style="text-align: left;">decided</td>
 <td style="text-align: left;"><code>sq</code> (decided: <code>(x) -&gt; x^2</code>)</td>
@@ -887,12 +881,6 @@ forms with gp's names.</p>
 <td style="text-align: left;">—</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>parapply(x -&gt; x^2, [1, 2, 3])</code></td>
-<td style="text-align: left;">proposed</td>
-<td style="text-align: left;"><code>1:1 error undeclared 'parapply'</code> (also <code>parvector</code>, <code>parsum</code>, <code>parselect</code>)</td>
-<td style="text-align: left;">(a) below</td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>parfor(i &lt;- [1..3], say(i))</code></td>
 <td style="text-align: left;">proposed</td>
 <td style="text-align: left;"><code>1:1 error undeclared 'parfor'</code></td>
@@ -900,9 +888,6 @@ forms with gp's names.</p>
 </tr>
 </tbody>
 </table>
-<ul>
-<li>(a) <code>[rud1] [x^2 | x &lt;- [1, 2, 3]] \\ [1,4,9]</code></li>
-</ul>
 <h2 id="the-symbolic-layer-spec-9">The symbolic layer (spec §9)</h2>
 <p>§9 states it; §11 lists the quoting as open ("tentative").</p>
 <table>

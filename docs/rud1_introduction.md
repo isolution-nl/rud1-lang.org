@@ -138,7 +138,7 @@ and tightened there as far as it goes.
 Output:
 
 ```text
-006.rud:1:1 error 0.1: the prototype's float (binary64) holds no exact 1/10 [E0f28e9]
+0.300000000000000
 ```
 
 A comparison gives a `bool`, shown as `1` or `0`. `==` compares values across the kinds of
