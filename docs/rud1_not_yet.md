@@ -63,7 +63,7 @@ the type pass of spec §10 adds beyond that (dispatch, variants, binding by type
 
 The check that `my(uint x= -1)` does not make, written out:
 
-```
+```text
 [rud1] my(x= uint(-1)); x  \\> we exited <error("uint(-1): -1 is negative")> at 1:7
 ```
 
@@ -114,7 +114,7 @@ The names of the binary operators are built: `[rud1] _+_(1, 2) \\ 3`.
 
 (b):
 
-```
+```text
 [rud1]
 my
 ( A= [[1, 2], [3, 4]]
@@ -149,7 +149,7 @@ The comprehensions with `#a-1` are an `error` for an empty list (`uint - uint` b
 
 (a):
 
-```
+```text
 [rud1]
 my(BASE= 2, digits(n)= if(n < BASE, [n], __SELF__(n // BASE) ~ [n % BASE]));
 digits(91)  \\> [1,0,1,1,0,1,1]
@@ -171,7 +171,7 @@ Built: `read_line()` on standard input, `say` and `print` on standard output, `e
 
 \(a\) Every line of standard input, here the three lines `3`, `4`, `5`:
 
-```
+```text
 [rud1]
 mut my(total= 0);
 mut my(line= read_line());
@@ -206,12 +206,12 @@ Sentences of the spec that still say "`unpack` is not built" are older than that
 \(a\) Two variants that can read the same text are a compile error while ranking is
 strict; `||` ("or else") says that the first one wins:
 
-```
+```text
 [rud1] unpack(t{&hex ::= %[0-9A-Fa-f]+ ; &dec ::= %[0-9]+ ; &hex | &dec}, b"15")
 \\ 1:8 error template 1:45: variants 1 and 2 can read the same text, "1": make one of them narrower, or write '||' where the first is to win
 ```
 
-```
+```text
 [rud1] unpack(t{&hex ::= %[0-9A-Fa-f]+ ; &dec ::= %[0-9]+ ; &hex || &dec}, b"15")  \\> [[b"15"]]
 ```
 
@@ -245,12 +245,12 @@ are not built: `rud1_run` has no option for one (`rud1_run -h` lists
 `-c`, `-e`, `-f`) and no form in a program sets one. Every check has its default. The one
 policy that can be asked for today stands in the header of a template:
 
-```
+```text
 [rud1] unpack(t{%[.]}, b".")
 \\ 1:8 error template 1:3: the byte '.' of a set is escaped (\.) or stands in an inner bracket ([.])
 ```
 
-```
+```text
 [rud1] unpack(t{(*policy.punctuation.bare: 2) %[.]}, b".")  \\> [b"."]
 ```
 
@@ -289,7 +289,7 @@ forms with gp's names.
 
 \(a\) `rud1_run -c -e '1 + 2'`:
 
-```
+```text
 [rud1] 1 + 2
 \\ (add 1 2)
 \\ 3

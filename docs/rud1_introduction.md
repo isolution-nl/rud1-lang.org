@@ -53,14 +53,14 @@ A program is a sequence of expressions separated by `;`. Its value is the value 
 one, and that value is shown after the program's output, unless the source ends in `;`.
 `say` writes its arguments and a newline, and its value is its last argument:
 
-```
+```text
 [rud1]
 say("hello")
 ```
 
 Output:
 
-```
+```text
 hello
 "hello"
 ```
@@ -72,7 +72,7 @@ prompt `? `, a longer one goes on in lines indented by two, and its value follow
 entry that ends in `;` shows no value. The REPL numbers each value as well (`%1 = …`,
 after gp; decided, not built); the sessions here leave the numbers out.
 
-```
+```text
 ? 2 + 3 * 4
 > 14
 
@@ -90,7 +90,7 @@ and `urat`. `/` is exact and gives a fraction when the division does not come ou
 `//` is the whole quotient and `%` the remainder, which is never negative. `^` is the
 power.
 
-```
+```text
 ? [7 / 2, 7 // 2, 7 % 2, 12 / 4, 1/3 + 1/6]
 > [7/2,3,1,3,1/2]
 
@@ -106,7 +106,7 @@ does not silently become a negative number, which protects an index; the result 
 `underflow` ("Errors are states"). A sum with a negative number, a prefix `+`, or the cast
 `sint(…)` gives the `sint`:
 
-```
+```text
 ? [3 + -5, sint(3) - 5, +3 - 5]
 > [-2,-2,-2]
 
@@ -122,7 +122,7 @@ would round it stops instead of giving a value rud1 would not give: `0.1` is an 
 `2e-3` the rational 1/500. A concession is made only at the interface of a library from outside,
 and tightened there as far as it goes.
 
-```
+```text
 ? [1.5 + 1, 7 / 2.0, 1.0e3, 1e3, 2e-3]
 > [2.50000000000000,3.50000000000000,1000.00000000000,1000,1/500]
 
@@ -130,14 +130,14 @@ and tightened there as far as it goes.
 > [1,1]
 ```
 
-```
+```text
 [rud1]
 0.1 + 0.2
 ```
 
 Output:
 
-```
+```text
 006.rud:1:1 error 0.1: the prototype's float (binary64) holds no exact 1/10 [E0f28e9]
 ```
 
@@ -146,7 +146,7 @@ number, `===` asks for the same kind as well. Comparisons chain. There is no `&&
 `||`: `and` and `or` stop at the first argument that decides, and `!` is "not". False
 are `0`, `0.0` and `false`; an empty list and an empty string are true.
 
-```
+```text
 ? [1 == 1.0, 1 === 1.0, 1 < 2 <= 2, 1 <=> 2, and(true, false), or(false, true), !false]
 > [1,0,1,-1,0,1,1]
 ```
@@ -156,7 +156,7 @@ A number never becomes text by itself, nor text a number: `str(x)` writes a numb
 element by element: over a `str` by cluster, each the number of its one code point (a
 cluster of more is an `error`; `str.to_codepoints(s)` gives every code point).
 
-```
+```text
 ? [str(42), uint.read("42"), sint.read("-7"), "n = " ~ str(5), uint("42")]
 > ["42",42,-7,"n = 5",[52,50]]
 ```
@@ -167,7 +167,7 @@ cluster of more is an `error`; `str.to_codepoints(s)` gives every code point).
 assignment to an immutable name is refused when the program is compiled. The initializers
 run in order, so a later one sees the earlier names.
 
-```
+```text
 ? my(a= 3, b= a + 1); a * b
 > 12
 
@@ -175,14 +175,14 @@ run in order, so a later one sees the earlier names.
 > 14
 ```
 
-```
+```text
 [rud1]
 my(x= 3); x= 4
 ```
 
 Output:
 
-```
+```text
 010.rud:1:11 error assignment to immutable 'x'
 ```
 
@@ -193,7 +193,7 @@ before the `=` and one after, is the style of the language, not a rule of the pa
 `{ … }` is a block: a sequence with its own names, whose value is that of its last
 expression.
 
-```
+```text
 ? mut my(a= 1, b= 2); [a, b]= [b, a]; [a, b]
 > [2,1]
 
@@ -207,7 +207,7 @@ A function is declared in `my(…)` as `name(parameters)= body`. A lambda is `x 
 `(a, b) -> body`, a value like any other. A function calls itself as `__SELF__(…)`, and the functions
 of one `my(…)` call each other by name.
 
-```
+```text
 ? my(sq(x)= x^2, cube= x -> x^3, add= (a, b) -> a + b);
 ? [sq(5), cube(2), add(1, 2)]
 > [25,8,3]
@@ -220,7 +220,7 @@ of one `my(…)` call each other by name.
 A parameter can have a default, which sees the parameters before it. An empty argument
 takes the default. An argument can be given by the parameter's name, `name: value`.
 
-```
+```text
 ? my(box(text, left= "[", right= left)= left ~ text ~ right);
 ? [box("a"), box("a", "<"), box("a", , ">"), box("a", right: ")")]
 > ["[a[","<a<","[a>","[a)"]
@@ -230,7 +230,7 @@ A rest parameter `v[...]` takes the arguments that are left, as a list; `L[...]`
 spreads a list over the arguments. A longer `my(…)` is laid out with leading commas, one
 item per line.
 
-```
+```text
 ? my
   ( count(first, v[...])= [first, #v, v]
   , L= [3, 4]
@@ -244,7 +244,7 @@ first argument, `_2` the second) or with an operator's name (`_+_`, `_*_`). The 
 functions `fold`, `max`, `min`, `prod`, `scan` and `sum` work so. A lambda takes the value
 a name has when the lambda is made, and it cannot assign a `mut` of the code around it.
 
-```
+```text
 ? my(v= [3, 1, 2]);
 ? [fold(_*_, v), fold((a, b) -> a + b, v), scan(_+_, v)]
 > [6,6,[3,4,6]]
@@ -269,7 +269,7 @@ in parallel.
 it is a chain: condition, value, condition, value, and an odd last argument is the "else".
 Each part can be a sequence with `;`.
 
-```
+```text
 ? my
   ( fizzbuzz(n)= if
     ( 0 == n % 15, "FizzBuzz"
@@ -289,7 +289,7 @@ An `if` without an "else" whose condition is false has no value: its result is `
 tests. `for(i= a, b, body)` counts from `a` to `b`, both included; `for(x <- L, body)` walks a
 list. The counter is immutable in the body (`for(mut i= a, b, …)` makes it changeable).
 
-```
+```text
 ? my(step(n)= if(0 != n % 2, 3 * n + 1, n // 2));
 ? mut my(n= 27, k= 0);
 ? while
@@ -304,7 +304,7 @@ list. The counter is immutable in the body (`for(mut i= a, b, …)` makes it cha
 `leave()` ends the innermost loop or block, `leave(, v)` ends it with the value `v`,
 `leave(2)` ends two; `next()` goes to the next round.
 
-```
+```text
 ? mut my(r= []); for(i= 1, 9, if(3 == i, next()); if(6 == i, leave()); r~= [i]); r
 > [1,2,4,5]
 ```
@@ -316,14 +316,14 @@ A loop has a value: that of its last round, or what `leave(, v)` gives it, and `
 no round ran. A script that ends in a loop, or in an `if` without "else", can so end without
 a value, which is a failure ("Errors are states"). The compiler warns on every run:
 
-```
+```text
 [rud1]
 for(i= 1, 99, if(i^2 > 200, leave(, i)))
 ```
 
 Output:
 
-```
+```text
 019.rud:1:1 warning: the script ends in a 'for', which can be undef (exit status 1): end it with '0;' [W02b6c2]
 15
 ```
@@ -337,7 +337,7 @@ lists, `~*` repeats one. `[a..b]` is the range from `a` to `b`, both included, a
 empty when `b` is below `a`. A step follows a `;`: `[a..b;s]`. A range written backwards
 without a step, `[5..1]`, is a warning: it is empty, and a step of `-1` may have been meant.
 
-```
+```text
 ? [[1..5], [1..10;3], [10..1;-3], [5..1;1]]
 > [[1,2,3,4,5],[1,4,7,10],[10,7,4,1],[]]
 
@@ -349,7 +349,7 @@ A comprehension builds a list from another: `[expression | name <- list, conditi
 Several generators stand in an inner pair of brackets. A list is lazy, so a range may run
 to `oo` when only a part of it is used.
 
-```
+```text
 ? [x^2 | x <- [1..10], 0 == x % 2]
 > [4,16,36,64,100]
 
@@ -365,7 +365,7 @@ where `__` is the list being indexed), a computed one below 0 is an `error`. An 
 be a range or a list of positions, and then gives a list. A position outside the list is an
 `error`.
 
-```
+```text
 ? my(v= [10, 20, 30, 40, 50]);
 ? [v[0], v[-1], v[1..3], v[0, -1], v[#v-1..0;-1]]
 > [10,50,[20,30,40],[10,50],[50,40,30,20,10]]
@@ -374,7 +374,7 @@ be a range or a list of positions, and then gives a list. A position outside the
 Assigning an element needs a `mut` name, and cannot make the list longer; `~=` does that.
 A list is a value: a copy does not change with the original.
 
-```
+```text
 ? mut my(v= [1, 2, 3]); my(w= v); v[0]= 9; v~= [4]; [v, w]
 > [[9,2,3,4],[1,2,3]]
 ```
@@ -383,7 +383,7 @@ An element can have a name; a list of named elements serves as a record. A field
 and assigned as `p.name`, and is still reached by its position. A matrix is a list of rows,
 written with `;` between the rows.
 
-```
+```text
 ? my(p= [name: "Ada", born: 1815]); [p.name, p[1], names(p)]
 > ["Ada",1815,["name","born"]]
 
@@ -402,7 +402,7 @@ length in characters as Unicode counts them (extended grapheme clusters: a flag 
 `é` with a combining accent is one), `s[i]` is one of them, and the comparisons follow Unicode's canonical equivalence: an
 `é` written as one code point or as `e` and a combining accent is equal under `==`.
 
-```
+```text
 ? my(s= "héllo"); [#s, s ~ " world", "" != s]
 > [5,"héllo world",1]
 
@@ -413,7 +413,7 @@ length in characters as Unicode counts them (extended grapheme clusters: a flag 
 A string has no index. The functions on strings carry the type's name in front, the `str.`
 family:
 
-```
+```text
 ? [str.split("a,b,c", ","), str.join(["a", "b"], "-")]
 > [["a","b","c"],"a-b"]
 
@@ -447,7 +447,7 @@ bytes, `b[i]` is one byte, a number (`uint(b)` the numbers of all the bytes), `b
 UTF-8 (an `error` when they are not). A `str` and a `bytes` value do not mix under `~` or a
 comparison.
 
-```
+```text
 ? my(b= b"\x{c3}\x{a9}t");
 ? [b, #b, b[0], uint(b)]
 > [b"\x{c3}\x{a9}t",3,\x{c3},[195,169,116]]
@@ -463,7 +463,7 @@ comparison.
 `print(…)` does the same without the newline. A string is written as it is, any other value
 as it is shown. Both give their last argument as their value.
 
-```
+```text
 [rud1]
 my(total= 3, parts= [1, 1/2, "x"]);
 print("total: ");
@@ -473,7 +473,7 @@ say("half: ", total / 2, ", as a float: ", total / 2.0);
 
 Output:
 
-```
+```text
 total: 3 items, [1,1/2,"x"]
 half: 3/2, as a float: 1.50000000000000
 ```
@@ -502,7 +502,7 @@ are no exceptions, and no `return`: `guard(x, fallback)` is `x` when `x` is defi
 `fallback`, which is not evaluated before it is needed. `is_defined(x)` tells whether a result
 is there, for the states below `error`; an `error` passes through it.
 
-```
+```text
 ? my(half(n)= if(0 == n % 2, n // 2)); [half(10), guard(half(7), "odd")]
 > [5,"odd"]
 
@@ -517,7 +517,7 @@ A program whose last value is not defined ends with the dying message on standar
 `we exited <state> at file:line:column`, with the calls that led there, and with exit status 1.
 Nothing is shown as a result. Otherwise the status is 0.
 
-```
+```text
 [rud1]
 my
 ( price(item)= if("tea" == item, 3, error("no such item: " ~ item))
@@ -530,7 +530,7 @@ say("not reached");
 
 Output:
 
-```
+```text
 6
 we exited <error("no such item: milk")> at 030.rud:2:37
   in (price at 030.rud:3:53, total at 030.rud:6:5)
@@ -540,14 +540,14 @@ The exit status of that run is 1. `exit(n)` ends the program at once with status
 255), and `exit(n, message)` writes the message to standard error first. This one ends with
 status 2:
 
-```
+```text
 [rud1]
 my(n= guard(uint.read("12x"), -1)); if(n < 0, exit(2, "not a number")); n
 ```
 
 Output:
 
-```
+```text
 not a number
 ```
 
@@ -560,7 +560,7 @@ an overview of which object can carry which state and how each spreads.
 `undef` when the input has ended. A program takes the line feed off and converts the text
 itself. With the input `12 30`, a line feed, `7 -8 1` and a line feed:
 
-```
+```text
 [rud1]
 my(numbers(s)= [sint.read(w) | w <- str.split(str.split(s, "\n")[0], " "), "" != w]);
 mut my(line= read_line());
@@ -574,7 +574,7 @@ while
 
 Output:
 
-```
+```text
 [12,30] sum 42
 [7,-8,1] sum 0
 ```
@@ -593,7 +593,7 @@ regular expression underneath.
 A few fixed fields. `n` is a 16-bit number with the high byte first, `C` one byte, `V` a
 32-bit number with the low byte first; `name:` in front names the field.
 
-```
+```text
 ? my(tpl_header= t{id:n flags:C size:V});
 ? unpack(tpl_header, b"\x{01}\x{02}\x{07}\x{10}\x{00}\x{00}\x{00}")
 > [id:258,flags:7,size:16]
@@ -603,7 +603,7 @@ A text with its length in front. `C/a` is a count in one byte, then that many by
 text; the count is part of the result. A quoted text has to be there as it is written, and
 `x*` skips what is left. A text field is `bytes`, to be cast when it is text.
 
-```
+```text
 ? my(r= unpack(t{"ID" name:C/a age:C x*}, b"ID\x{03}Ada\x{24}rest"));
 ? r
 > [b"ID",3,name:b"Ada",age:36,b"rest"]
@@ -626,20 +626,20 @@ input early": a template that hostile input could make slow is refused when comp
 the rule proposed): a repeat whose rounds each leave a trial
 under way that reads on beyond the round would take time that grows faster than the data.
 
-```
+```text
 [rud1]
 unpack(t{("a"* "b" || "a")* "!"}, b"aaa!")
 ```
 
 Output:
 
-```
+```text
 035.rud:1:8 error template 1:1: each round of this repeat leaves a trial under way that reads on beyond the round, one more each round, as on "aaaaaaaaaaaa"…: reading would take time that grows faster than the data; let the variant or the look-ahead that reads on end where the round ends
 ```
 
 Written so that each round needs its own first byte, the same template passes:
 
-```
+```text
 ? unpack(t{("x" ("a"* "b" || "a"))* "!"}, b"xaxab!")
 > [[[b"x",[b"a"]],[b"x",[[b"a"],b"b"]]],b"!"]
 ```
@@ -653,14 +653,14 @@ a memo of each place and item.
 A declaration can carry a status word, written as a bracket around the item. A use of a
 `deprecated` item is a warning at each place of use, when compiled:
 
-```
+```text
 [rud1]
 my(deprecated_( old(x)= x + 1 )_deprecated); old(2)
 ```
 
 Output:
 
-```
+```text
 037.rud:1:46 warning: 'old' is deprecated: its declaration at 1:4 stands in deprecated_( … )_deprecated [W0bad3d]
 3
 ```

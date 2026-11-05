@@ -16,7 +16,7 @@ with its result after `\\>` or in a block headed "Output:".
 
 **Arithmetic.** `/` is exact, `//` and `%` are the Euclidean quotient and its remainder, which is never negative.
 
-```
+```text
 [rud1] 1 + 2 * 3  \\> 7
 [rud1] [7 / 2, 7 // 2, 7 % 2, -7 // 2, -7 % 2]  \\> [7/2,3,1,-4,1]
 [rud1] [2^10, -3^2, 2^3^2]  \\> [1024,-9,512]
@@ -26,13 +26,13 @@ with its result after `\\>` or in a block headed "Output:".
 
 **Big numbers.** Whole numbers have no upper limit.
 
-```
+```text
 [rud1] 2^100  \\> 1267650600228229401496703205376
 ```
 
 **Rationals.**
 
-```
+```text
 [rud1] 1/3 + 1/6  \\> 1/2
 [rud1] [(2/3)^3, 2^-3, (1/2)^-2]  \\> [8/27,1/8,4]
 [rud1] sum([1/k | k <- [1..10]])  \\> 7381/2520
@@ -41,7 +41,7 @@ with its result after `\\>` or in a block headed "Output:".
 
 **Ranges.** A step follows `;`; a range among other elements is spliced in.
 
-```
+```text
 [rud1] [1..10]  \\> [1,2,3,4,5,6,7,8,9,10]
 [rud1] [[1..9;2], [10..1;-3]]  \\> [[1,3,5,7,9],[10,7,4,1]]
 [rud1] [1, 5..7, 9]  \\> [1,5,6,7,9]
@@ -50,7 +50,7 @@ with its result after `\\>` or in a block headed "Output:".
 
 **Comprehensions.** Filters follow the generator; several generators stand in a bracket.
 
-```
+```text
 [rud1] [x^2 | x <- [1..8]]  \\> [1,4,9,16,25,36,49,64]
 [rud1] [x | x <- [1..30], 0 == x % 7]  \\> [7,14,21,28]
 [rud1] [[a, b] | [a <- [1..3], b <- [a..3]]]  \\> [[1,1],[1,2],[1,3],[2,2],[2,3],[3,3]]
@@ -59,7 +59,7 @@ with its result after `\\>` or in a block headed "Output:".
 
 **Sums and folds.** `fold(f, L)` combines the elements from the left, `f(f(L[0], L[1]), L[2])` and so on; `fold(f, a, L)` starts from `a`. `scan` gives every value the fold passes through.
 
-```
+```text
 [rud1] sum([1..10], _1^2)  \\> 385
 [rud1] [fold(_+_, [1, 2, 3, 4]), fold(_*_, 1, [1..6])]  \\> [10,720]
 [rud1] scan(_+_, [1, 2, 3, 4])  \\> [1,3,6,10]
@@ -68,7 +68,7 @@ with its result after `\\>` or in a block headed "Output:".
 
 **Strings.** `~` joins, `~*` repeats, `#` counts code points; `str` gives the text of a number, `T.read` reads one.
 
-```
+```text
 [rud1] ["abc" ~ "def", "ab" ~* 3, #"héllo"]  \\> ["abcdef","ababab",5]
 [rud1] [str(42) ~ "!", sint.read("42") + 1]  \\> ["42!",43]
 [rud1] str.split("a,b,c", ",")  \\> ["a","b","c"]
@@ -81,14 +81,14 @@ with its result after `\\>` or in a block headed "Output:".
 **Recursion.** A function calls itself as `__SELF__(…)`; the functions of one `my(…)`
 see each other, in any order, and call each other by name (`ev` and `od` below).
 
-```
+```text
 [rud1] my(fact(n)= if(n < 2, 1, n * __SELF__(n - 1))); fact(30)  \\> 265252859812191058636308480000000
 [rud1] my(ev(n)= if(0 == n, 1, od(n - 1)), od(n)= if(0 == n, 0, ev(n - 1))); ev(10)  \\> 1
 ```
 
 A body of several steps is a block; `leave(2, 0)` leaves the loop and the block with 0.
 
-```
+```text
 [rud1]
 my
 ( is_prime(n)=
@@ -102,7 +102,7 @@ my
 
 **Lambdas.**
 
-```
+```text
 [rud1] my(sq= x -> x^2); [sq(k) | k <- [1..5]]  \\> [1,4,9,16,25]
 [rud1] my(add= (a, b) -> a + b); add(2, 3)  \\> 5
 [rud1] my(f= x -> y -> x + y); f(1)(2)  \\> 3
@@ -112,7 +112,7 @@ my
 **Defaults and named arguments.** A default may use the parameters before it; an empty
 argument takes the default.
 
-```
+```text
 [rud1] my(f(a, b= 5, c= a + b)= [a, b, c]); [f(1), f(1, , 9)]  \\> [[1,5,6],[1,5,9]]
 [rud1] my(area(w, h= w)= w * h); [area(3), area(3, 4), area(h: 2, w: 5)]  \\> [9,12,10]
 [rud1] my(f(a, b, c)= [a, b, c]); f(c: 9, a: 1, b: 5)  \\> [1,5,9]
@@ -121,7 +121,7 @@ argument takes the default.
 **Rest and spread.** `v[...]` takes the remaining arguments as a list, `v[1...]` at least
 one; `L[...]` spreads a list over the parameters.
 
-```
+```text
 [rud1] my(f(a, v[...])= [a, v]); [f(1), f(1, 2, 3)]  \\> [[1,[]],[1,[2,3]]]
 [rud1] my(mean(v[1...])= sum(v) / #v); mean(1, 2, 6)  \\> 3
 [rud1] my(f(a, b, c)= a + b * c, L= [2, 3]); f(1, L[...])  \\> 7
@@ -129,14 +129,14 @@ one; `L[...]` spreads a list over the parameters.
 
 **Operators as values.** An operator between two `_` is a function.
 
-```
+```text
 [rud1] fold(_~_, ["a", "b", "c"])  \\> "abc"
 [rud1] [_<=>_(1, 2), _^_(2, 10)]  \\> [-1,1024]
 ```
 
 **Placeholders.** `_1`, `_2` in an argument make that argument a function of them.
 
-```
+```text
 [rud1] my(twice(f, x)= f(f(x))); twice(_1 * 3, 5)  \\> 45
 [rud1] fold(_1 + 2 * _2, [1, 2, 3])  \\> 11
 ```
@@ -146,7 +146,7 @@ one; `L[...]` spreads a list over the parameters.
 **Indexing.** Positions count from 0; a literal negative one counts from the end (`v[-1]` is
 `v[#__ - 1]`, `__` the list being indexed); a computed one below 0 is the state `underflow`.
 
-```
+```text
 [rud1] my(v= [10, 20, 30, 40]); [v[0], v[-1], v[1..2], #v]  \\> [10,40,[20,30],4]
 [rud1] mut my(v= [1, 2, 3]); v[1]= 9; v~= [4]; v  \\> [1,9,3,4]
 [rud1] my(M= [1, 2, 3; 4, 5, 6]); [M[1][2], M[0], [r[0] | r <- M]]  \\> [6,[1,2,3],[1,4]]
@@ -154,7 +154,7 @@ one; `L[...]` spreads a list over the parameters.
 
 **Gather and scatter.** Several positions give a list; assigned to, they take a list.
 
-```
+```text
 [rud1] my(v= [10, 20, 30, 40]); v[3, 0]  \\> [40,10]
 [rud1] mut my(v= [1, 2, 3]); v[0, 2]= v[2, 0]; v  \\> [3,2,1]
 ```
@@ -162,7 +162,7 @@ one; `L[...]` spreads a list over the parameters.
 **Stepped ranges.** As a list (a list of steps is taken in turn), and as positions: every
 second element, the reverse.
 
-```
+```text
 [rud1] [[0..20;5], [20..0;-5]]  \\> [[0,5,10,15,20],[20,15,10,5,0]]
 [rud1] my(w= [4, 2, 4, 2, 4, 6, 2, 6]); [7..40;w]  \\> [7,11,13,17,19,23,29,31,37]
 [rud1] my(v= [0, 1, 2, 3, 4]); [v[0 .. #v - 1; 2], v[#v - 1 .. 0; -1]]  \\> [[0,2,4],[4,3,2,1,0]]
@@ -170,7 +170,7 @@ second element, the reverse.
 
 **Named lists.** A record is a list with names on its elements.
 
-```
+```text
 [rud1] my(p= [x: 1, y: 2]); [p.x, p[1], #p, names(p)]  \\> [1,2,2,["x","y"]]
 [rud1] mut my(p= [x: 1, y: 2]); p.x+= 10; p  \\> [x:11,y:2]
 [rud1] [x: 1] ~ [2, y: 3]  \\> [x:1,2,y:3]
@@ -179,7 +179,7 @@ second element, the reverse.
 
 **Destructuring.**
 
-```
+```text
 [rud1] my([a, b]= [1, 2]); a + b  \\> 3
 [rud1] my(divmod(a, b)= [a // b, a % b], [q, r]= divmod(17, 5)); [q, r]  \\> [3,2]
 [rud1] mut my(a= 1, b= 2); [a, b]= [b, a]; [a, b]  \\> [2,1]
@@ -191,12 +191,12 @@ A script that ends in a loop is ended with `0;`: a loop that ran no round has no
 
 **`for`.**
 
-```
+```text
 [rud1] mut my(s= 0); for(i= 1, 100, s+= i); s  \\> 5050
 [rud1] mut my(s= 0); for([a, b] <- [[1, 2], [3, 4]], s+= a * b); s  \\> 14
 ```
 
-```
+```text
 [rud1]
 my(N= 3);
 for(i= 1, N, say(str.join([str(i * j) | j <- [1..N]], " ")));
@@ -205,7 +205,7 @@ for(i= 1, N, say(str.join([str(i * j) | j <- [1..N]], " ")));
 
 Output:
 
-```
+```text
 1 2 3
 2 4 6
 3 6 9
@@ -213,7 +213,7 @@ Output:
 
 **`while` and `until`.** `until` tests after the body, so its body runs at least once.
 
-```
+```text
 [rud1] mut my(i= 0, s= 0); while(i < 5, i+= 1; s+= i); [i, s]  \\> [5,15]
 [rud1] mut my(n= 27, k= 0); while(1 != n, n= if(0 != n % 2, 3 * n + 1, n / 2); k+= 1); k  \\> 111
 [rud1] mut my(n= 1234); until(n > 1000, n*= 2); n  \\> 2468
@@ -221,7 +221,7 @@ Output:
 
 **`leave`.** `leave(, v)` ends the loop with the value `v`; `leave(2, v)` ends two levels.
 
-```
+```text
 [rud1] my(first(L, p)= for(x <- L, if(p(x), leave(, x)))); first([3, 8, 12, 5], _1 > 10)  \\> 12
 [rud1] mut my(k= 0); while(true, k+= 1; if(k^2 > 50, leave())); k  \\> 8
 [rud1] my(f(L)= { for(x <- L, if(x > 1, leave(2, x))); 0 }); [f([1, 2, 3]), f([1, 1])]  \\> [2,0]
@@ -229,7 +229,7 @@ Output:
 
 **`next`.** `next()` goes to the next round of its loop, `next(2)` to the next round of the loop one level up.
 
-```
+```text
 [rud1] mut my(s= 0); for(i= 1, 10, if(0 == i % 2, next()); s+= i); s  \\> 25
 [rud1] mut my(s= 0); for(x <- [1, 2], for(y <- [10, 20], if(20 == y, next(2)); s+= x + y)); s  \\> 23
 ```
@@ -239,7 +239,7 @@ Output:
 **The `str.` family.** A `str` has no index; `str.to_characters` splits it into its code points, each a
 `str` of one.
 
-```
+```text
 [rud1] str.to_characters("héllo")  \\> ["h","é","l","l","o"]
 [rud1] [str.substr("hello", 1, 3), str.substr("hello", -3)]  \\> ["ell","llo"]
 [rud1] [str.split("a,,b", ","), str.split("héé", "")]  \\> [["a","","b"],["h","é","é"]]
@@ -249,7 +249,7 @@ Output:
 
 **Case mapping.** Unicode's full mappings, untailored.
 
-```
+```text
 [rud1] [str.to_uppercase("straße"), str.to_lowercase("ΟΔΟΣ")]  \\> ["STRASSE","οδος"]
 [rud1] [str.to_titlecase_first("ijs"), str.to_casefold("ß")]  \\> ["Ijs","ss"]
 [rud1] [str.eq_caseless("Straße", "STRASSE"), "Straße" == "STRASSE"]  \\> [1,0]
@@ -258,7 +258,7 @@ Output:
 
 **Code points.**
 
-```
+```text
 [rud1] str.to_codepoints("hé")  \\> [\x{68},\x{e9}]
 [rud1] str.from_codepoints([c + 1 | c <- str.to_codepoints("HAL")])  \\> "IBM"
 [rud1] ["\u{e9}" == "é", #"e\u{301}", "a\tb"]  \\> [1,1,"a\x{09}b"]
@@ -268,7 +268,7 @@ Output:
 (`b[0..0]= b"zz"`); `bytes(s)` encodes a `str` as UTF-8; an index gives one byte, a number, as a walk does, and a fold goes over them
 (`sum(b)`, `int.sum(b)` for the bytes as `sint`); `bytes(L)` makes one of numbers from 0 to 255.
 
-```
+```text
 [rud1] [#"hé", #b"h\x{c3}\x{a9}", str(b"h\x{c3}\x{a9}")]  \\> [2,3,"hé"]
 [rud1] [b"abc"[0], uint(b"abc"), b"abc"[0..1], b"abc"[0, 2]]  \\> [\x{61},[97,98,99],b"ab",b"ac"]
 
@@ -280,7 +280,7 @@ Output:
 
 **`guard`.** `guard(e, d)` is `e`, or `d` when `e` is an `error` or not defined.
 
-```
+```text
 [rud1] guard(1/0, 0)  \\> 0
 [rud1] my(v= [1, 2]); guard(v[5], "none")  \\> "none"
 [rud1] my(safe_div(a, b)= guard(a / b, 0)); [safe_div(6, 3), safe_div(1, 0)]  \\> [2,0]
@@ -288,11 +288,11 @@ Output:
 
 **`error(msg)`.** An `error` that nothing guards ends the program, with status 1.
 
-```
+```text
 [rud1] my(half(n)= if(0 != n % 2, error("odd"), n / 2)); [half(8), guard(half(7), -1)]  \\> [4,-1]
 ```
 
-```
+```text
 [rud1]
 my(half(n)= if(0 != n % 2, error("odd: " ~ str(n)), n / 2));
 say(half(8));
@@ -302,7 +302,7 @@ say("not reached");
 
 Output:
 
-```
+```text
 4
 we exited <error("odd: 7")> at 091.rud:1:28
   in half at 091.rud:3:5
@@ -313,7 +313,7 @@ Exit status: 1.
 **`is_defined`.** A name declared without a value, `max` of an empty list and `read_line()`
 at the end of input are not defined (the second line: run with an empty standard input).
 
-```
+```text
 [rud1] my(r); [is_defined(r), is_defined(1), is_defined(max([]))]  \\> [0,1,0]
 [rud1] is_defined(read_line())  \\> 0
 ```
@@ -322,7 +322,7 @@ at the end of input are not defined (the second line: run with an empty standard
 first. `exit(n, msg)` ends the program with status `n`; the message of a status other than 0
 goes to standard error, and what was deferred still runs.
 
-```
+```text
 [rud1]
 { defer(say("d1"));
   defer(say("d2"));
@@ -334,7 +334,7 @@ goes to standard error, and what was deferred still runs.
 
 Output:
 
-```
+```text
 working
 giving up
 d2
@@ -348,7 +348,7 @@ Exit status: 2.
 `read_line()` gives the input up to and including the next line feed, unchanged, and is not
 defined at the end of input. Run as `rud1_run FILE < input`.
 
-```
+```text
 [rud1]
 my(name= str.split(read_line(), "\n")[0]);
 say("Hello, ", name, ".");
@@ -356,19 +356,19 @@ say("Hello, ", name, ".");
 
 Input:
 
-```
+```text
 Ada
 ```
 
 Output:
 
-```
+```text
 Hello, Ada.
 ```
 
 Every line, to the end of input:
 
-```
+```text
 [rud1]
 mut my(n= 0, total= 0);
 while
@@ -381,7 +381,7 @@ say(n, " lines, total ", total);
 
 Input:
 
-```
+```text
 1 2 3
 40
 
@@ -390,7 +390,7 @@ Input:
 
 Output:
 
-```
+```text
 4 lines, total 50
 ```
 
@@ -406,7 +406,7 @@ the value it shows; an entry that ends in `;` shows nothing.
 **Fixed fields.** `C` is a byte, `n` and `N` are 16 and 32 bits big-endian, `v` and `V`
 little-endian; `c s l` are signed, little-endian; `a4` is four bytes of text.
 
-```
+```text
 ? my
   ( tpl_byte_be16_le16= t{C n v}
   , tpl_signed_8_16_32= t{c s l}
@@ -429,7 +429,7 @@ little-endian; `c s l` are signed, little-endian; `a4` is four bytes of text.
 **Counts.** A number after a number code gives a list, `*` runs to the end, `x*` takes the rest as
 skipped bytes.
 
-```
+```text
 ? my
   ( tpl_three_bytes_be16s= t{C3 n*}
   , tpl_two_pairs_rest=    t{(n C)2 x*}
@@ -444,7 +444,7 @@ skipped bytes.
 **A length-prefixed text.** `C/a` is a count byte and that many bytes; the count is an item
 of the result too. The other two end a text at a mark.
 
-```
+```text
 ? my
   ( tpl_name_age=       t{name:C/a age:C}
   , tpl_cstring_byte=   t{name:a* "\x{0}" n:C}
@@ -466,7 +466,7 @@ of the result too. The other two end a text at a mark.
 
 **A repeated group.** `=n:C` names a count, `[=n]` uses it.
 
-```
+```text
 ? my(tpl_pk_files= t{"PK" =n:C files:(name:C/a size:v)[=n]});
 ? my(f= unpack(tpl_pk_files, b"PK\x{02}\x{01}a\x{05}\x{00}\x{02}bc\x{07}\x{00}"));
 ? f.n
@@ -482,7 +482,7 @@ of the result too. The other two end a text at a mark.
 **A struct with names.** A struct `{…}` names every member and reports them in the order of
 the names.
 
-```
+```text
 ? my
   ( tpl_struct_id_flags= t{{id:n flags:C}}
   , tpl_head_rest=       t{head:{id:n flags:C} x*}
@@ -497,7 +497,7 @@ the names.
 **Bit fields.** `B4` takes the high bits of a byte first, `b4` the low bits; bit fields in a
 row share bytes.
 
-```
+```text
 ? my
   ( tpl_ip_version_ihl= t{version:B4 ihl:B4}
   , tpl_nibbles=        t{low:b4 high:b4}
@@ -516,7 +516,7 @@ row share bytes.
 **A search or jump.** `@"PK"` searches forward; `.` marks the start, `@[=at]` jumps to that
 many bytes after it. A jump leaves the count of bytes passed.
 
-```
+```text
 ? my
   ( tpl_find_pk= t{@"PK" sig:a2 x*}
   , tpl_jump_at= t{. =at:C @[=at] v:C @*}
@@ -531,7 +531,7 @@ many bytes after it. A jump leaves the count of bytes passed.
 **A text pattern with a set.** `%[a-z]` is one byte of the set, with `+` or `*` a run; `$dec`
 and `$hex` read digits as a number; `&s` is a white space byte, `&w` a word byte.
 
-```
+```text
 ? my
   ( tpl_key_digits=      t{key:%[a-z]+ "=" value:%[0-9]+}
   , tpl_rgb_hex=         t{"#" r:$hex[2] g:$hex[2] b:$hex[2]}
@@ -556,7 +556,7 @@ and `$hex` read digits as a number; `&s` is a white space byte, `&w` a word byte
 of a variant chooses by a count read before. A pattern `&name ::= … ;` is defined once and
 used by its name.
 
-```
+```text
 ? my
   ( tpl_gif_head=       t{kind:("GIF87a" | "GIF89a") w:v}
   , tpl_number_or_word= t{(num:$dec+ || word:&w+)}
@@ -581,7 +581,7 @@ used by its name.
 The bytes are a PNG of 2 by 1 pixels, made with python 3.12.3 (`zlib`, `struct`). A template
 may span lines and hold comments, `\\` as in rud1 code (Perl's `#` with a blank after it works too).
 
-```
+```text
 ? my
   ( PNG=
       b"\x{89}PNG\x{0d}\x{0a}\x{1a}\x{0a}\x{00}\x{00}\x{00}\x{0d}IHDR\x{00}\x{00}\x{00}"
@@ -619,7 +619,7 @@ The bytes are `hello hello hello` and a line feed, 18 bytes, compressed with pyt
 (`gzip.GzipFile`, the name `hi.txt`, `mtime=1`). The flag bits say which parts follow;
 `data:a*` leaves the last eight bytes to `crc` and `isize`.
 
-```
+```text
 ? my
   ( GZ=
       b"\x{1f}\x{8b}\x{08}\x{08}\x{01}\x{00}\x{00}\x{00}\x{02}\x{ff}hi.txt\x{00}\x{cb}H"
@@ -697,7 +697,7 @@ to the name.
 (`p3:a4` takes four bytes, `"t mo"`, which stay together); `tpl_write` writes the same
 pieces in the order of the target. A text of bytes is written `b"…"`.
 
-```
+```text
 ? my
   ( tpl_read=  t{p0:a p1:a p2:a p3:a4 p7:a p8:a p9:a p10:a p11:a p12:a p13:a}
   , tpl_write= t{p10:a p13:a p0:a p11:a p1:a p7:a p3:a4 p8:a p2:a p9:a p12:a}
@@ -716,7 +716,7 @@ pieces in the order of the target. A text of bytes is written `b"…"`.
 traded, which may differ in length. Here the swaps work on the list of characters, and
 `str.join` makes a text of them again; a `str` takes the same swaps by code point. A search found no way with four swaps.
 
-```
+```text
 ? my
   ( c= "piet mondrian ".to_characters()
     .swap([0..0], [1..1])
@@ -743,7 +743,7 @@ The program is read with `tpl_program`; the text is cut and joined with `tpl_cut
 Both programs shown are 20 characters long, the fewest a search found; the last line runs the first
 on the text of the first subsection, with the same result.
 
-```
+```text
 [rud1]
 my
 ( tpl_program= t{ops:(n:%[0-9]* op:%[RL\+\-])* end:$dec+}
@@ -795,7 +795,7 @@ say(run(b"R10-R+-L+3L9-L+6-L+2", b"abcdefghijklmn"));
 
 Output:
 
-```
+```text
 R10-R+-L+3L9-L+6-L+2  i paint modern
 R10-R+-L+2L7-R+4-R+3  i paint modern
 knalbhdefgicjm
@@ -816,7 +816,7 @@ knalbhdefgicjm
 
 One question, many spellings: `v % 2`, the low bit, the bit a shift by 1 drops, a view of the bits, a power, recursion. A condition takes a `bool`, so each one compares; the result of `v % 2` is a number. `is_even` is any of them negated.
 
-```
+```text
 [rud1]
 my
 ( odd(v)= if(0 == v, false, even(v - 1))
@@ -847,7 +847,7 @@ say([f(7) | f <- ways]);
 
 Output (the number of ways, then each way of 6, false, and of 7, true):
 
-```
+```text
 16
 [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
 [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
@@ -857,7 +857,7 @@ Output (the number of ways, then each way of 6, false, and of 7, true):
 
 A whole number holds a bit vector: `bitset`, `bitclear`, `bitflip` give it with one bit changed, `bittest` reads one. It has no highest bit to keep, as a sentinel, so the last bit clears like any other.
 
-```
+```text
 [rud1]
 my
 ( sieve(N)=
@@ -875,7 +875,7 @@ say(sieve(100));
 
 Output:
 
-```
+```text
 [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97]
 ```
 
@@ -886,7 +886,7 @@ language writes, `seasoned` as one who knows it.
 
 ### FizzBuzz (`rosetta/basic/FizzBuzz.rud`)
 
-```
+```text
 [rud1]
 /* Rosetta Code: FizzBuzz */
 my
@@ -903,7 +903,7 @@ for(i= 1, 100, say(fizzbuzz(i)));
 
 Output, the first 15 of 100 lines:
 
-```
+```text
 1
 2
 Fizz
@@ -923,7 +923,7 @@ FizzBuzz
 
 ### Sieve of Eratosthenes (`rosetta/basic/Sieve_of_Eratosthenes.rud`)
 
-```
+```text
 [rud1]
 /* Rosetta Code: Sieve of Eratosthenes */
 my
@@ -942,13 +942,13 @@ say(primes(100));
 
 Output:
 
-```
+```text
 [2,3,5,7,11,13,17,19,23,29,31,37,41,43,47,53,59,61,67,71,73,79,83,89,97]
 ```
 
 ### Greatest common divisor (`rosetta/basic/Greatest_common_divisor.rud`)
 
-```
+```text
 [rud1]
 /* Rosetta Code: Greatest common divisor */
 my(gcd(a, b)= if(0 == b, a, __SELF__(b, a % b)));
@@ -957,13 +957,13 @@ say([gcd(1071, 462), gcd(462, 1071), gcd(17, 0), gcd(0, 0), gcd(2^64, 6^40)]);
 
 Output:
 
-```
+```text
 [21,21,17,0,1099511627776]
 ```
 
 ### Fibonacci sequence (`rosetta/seasoned/Fibonacci_sequence.rud`)
 
-```
+```text
 [rud1]
 /* Rosetta Code: Fibonacci sequence (fast doubling: about log2(n) steps) */
 my
@@ -982,14 +982,14 @@ say(fib(100));
 
 Output:
 
-```
+```text
 [0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765]
 354224848179261915075
 ```
 
 ### Hailstone sequence (`rosetta/seasoned/Hailstone_sequence.rud`)
 
-```
+```text
 [rud1]
 /* Rosetta Code: Hailstone sequence */
 my
@@ -1013,14 +1013,14 @@ say(longest(703));
 
 Output:
 
-```
+```text
 112 elements: [27,82,41,124] ... [8,4,2,1]
 [703,171]
 ```
 
 ### Reverse a string (`rosetta/seasoned/Reverse_a_string.rud`)
 
-```
+```text
 [rud1]
 /* Rosetta Code: Reverse a string (by code points) */
 my(reverse(s)= fold((r, c) -> c ~ r, "", str.to_characters(s)));
@@ -1030,7 +1030,7 @@ say(reverse("møøse"));
 
 Output:
 
-```
+```text
 fdsa
 esøøm
 ```
@@ -1039,7 +1039,7 @@ esøøm
 
 Its standard input is `rosetta/in/A+B.in`.
 
-```
+```text
 [rud1]
 /* Rosetta Code: A+B */
 my(numbers(s)= [int.read(w) | w <- str.split(str.split(s, "\n")[0], " "), "" != w]);
@@ -1048,12 +1048,12 @@ say(sum(numbers(read_line())));
 
 Input:
 
-```
+```text
  2  -3 
 ```
 
 Output:
 
-```
+```text
 -1
 ```
