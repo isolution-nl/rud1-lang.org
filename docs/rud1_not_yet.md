@@ -102,7 +102,7 @@ The names of the binary operators are built: `[rud1] _+_(1, 2) \\ 3`.
 | `Map(["a", 42; "b", -1])` | open | `1:1 error undeclared 'Map'` | `my(m= [a: 42, b: -1]); m.a \\ 42` (a record: fixed names) |
 | `3 - 5` | decided | `we exited <underflow> at 1:1` (the state built in generation 38; decided: under `{underflow: keep}` its payload is the `sint` result) | `+3 - 5 \\ -2` |
 | `sint(5/2)` | open | `we exited <error("sint(5/2): a urat is not cast to a whole number")> at 1:1` (also `sint(2.5)`, `uint(2.5)`) | — |
-| `2^0.5` | open | `we exited <error("2 ^ 0.500000000000000: the exponent is a whole number")> at 1:1` (a float exponent) | — |
+| `2^0.5` | open | `we exited <error("2 ^ 0.500000000000000: an exponent that is not whole is not in the core yet")> at 1:1` (a float exponent) | — |
 | `-0.0` | decided | `0.00000000000000` (no negative zero: a bug of the prototype's float) | — |
 | `oo // 2` | open | `we exited <error("not in the core yet: '//' with oo")> at 1:1` (also `%`, `^`, `sqrt`; the other operations on `oo` built in generation 55, spec §8.1) | — |
 | `#[x \| x <- [1..oo]]` | open | `out of steps`, at `-s 100000` (the walk takes a step a cell; only a range without an end has the length `+oo`; a list made from it, a range of floats, a list of steps are walked) | `#[1..oo] > 1000 \\ 1` |
