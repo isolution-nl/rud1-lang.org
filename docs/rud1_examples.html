@@ -328,7 +328,7 @@ for(i= 1, N, say(str.join([str(i * j) | j &lt;- [1..N]], &quot; &quot;)));
 <pre class="text"><code>[rud1] [str.to_uppercase(&quot;straße&quot;), str.to_lowercase(&quot;ΟΔΟΣ&quot;)]  \\&gt; [&quot;STRASSE&quot;,&quot;οδος&quot;]
 [rud1] [str.to_titlecase_first(&quot;ijs&quot;), str.to_casefold(&quot;ß&quot;)]  \\&gt; [&quot;Ijs&quot;,&quot;ss&quot;]
 [rud1] [str.eq_caseless(&quot;Straße&quot;, &quot;STRASSE&quot;), &quot;Straße&quot; == &quot;STRASSE&quot;]  \\&gt; [1,0]
-[rud1] [str.is_lowercase(&quot;abc&quot;), str.is_uppercase(&quot;abc&quot;), str.unicode_version()]  \\&gt; [1,0,[17,0,0]]</code></pre>
+[rud1] [str.is_lowercase(&quot;abc&quot;), str.is_uppercase(&quot;abc&quot;), str.unicode_version()]  \\&gt; [1,0,[18,0,0]]</code></pre>
 <p><strong>Code points.</strong></p>
 <pre class="text"><code>[rud1] str.to_codepoints(&quot;hé&quot;)  \\&gt; [\x{68},\x{e9}]
 [rud1] str.from_codepoints([c + 1 | c &lt;- str.to_codepoints(&quot;HAL&quot;)])  \\&gt; &quot;IBM&quot;

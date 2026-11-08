@@ -522,7 +522,7 @@ that adds and joins. Status: built: `str` and its `str.` family; of `bytes` the 
 ## 22. Case mapping is the Unicode Standard's full one
 
 `str.to_uppercase`, `str.to_lowercase` and `str.to_casefold` use the full mappings of the
-Standard (data of Unicode 17.0.0): a result can be longer than its input, and lowercasing
+Standard (data of Unicode 18.0.0): a result can be longer than its input, and lowercasing
 follows Final_Sigma. No language or locale setting changes a result.
 
 ```text

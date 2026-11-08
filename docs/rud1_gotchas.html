@@ -407,8 +407,8 @@ name length is in bytes: <code>([=nlen] (?u: name:a*))</code>, not <code>(?u: na
 every mode: <code>unpack(t{U*}, b"\x{c3}\x{a9}")</code> is <code>[[\x{e9}]]</code>. Perl's <code>unpack("U*")</code> on the
 bytes <code>c3 a9</code> gives 195 169; 233 comes only as <code>C0U*</code> (run).</li>
 <li><strong>Three <code>N</code>s.</strong> <code>&amp;N</code> is any byte but LF (it reads <code>5</code> and refuses a line feed),
-<code>\N{name}</code> a character by its name, <code>\p{N}</code> the numbers (1924 code points at Unicode
-17.0.0; <code>(?u: %[\p{N}])</code> reads <code>½</code>).</li>
+<code>\N{name}</code> a character by its name, <code>\p{N}</code> the numbers (2247 code points at Unicode
+18.0.0; <code>(?u: %[\p{N}])</code> reads <code>½</code>).</li>
 <li><strong>A setting has three values, and 0 is not "off".</strong> 0 = strict, refuse any overrides;
 1 = strict, allow overrides to 2 or 0; 2 = lax, allow overrides to 1 or 0. Asking for 1
 or 2 where something outside says 0 is a compile error. Ranking is on at 2, not at 1.

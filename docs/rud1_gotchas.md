@@ -118,8 +118,8 @@ backslash form exists only inside a quote or a set.
     every mode: `unpack(t{U*}, b"\x{c3}\x{a9}")` is `[[\x{e9}]]`. Perl's `unpack("U*")` on the
     bytes `c3 a9` gives 195 169; 233 comes only as `C0U*` (run).
 20. **Three `N`s.** `&N` is any byte but LF (it reads `5` and refuses a line feed),
-    `\N{name}` a character by its name, `\p{N}` the numbers (1924 code points at Unicode
-    17.0.0; `(?u: %[\p{N}])` reads `½`).
+    `\N{name}` a character by its name, `\p{N}` the numbers (2247 code points at Unicode
+    18.0.0; `(?u: %[\p{N}])` reads `½`).
 21. **A setting has three values, and 0 is not "off".** 0 = strict, refuse any overrides;
     1 = strict, allow overrides to 2 or 0; 2 = lax, allow overrides to 1 or 0. Asking for 1
     or 2 where something outside says 0 is a compile error. Ranking is on at 2, not at 1.

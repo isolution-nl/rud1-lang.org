@@ -816,7 +816,7 @@ that adds and joins. Status: built: <code>str</code> and its <code>str.</code> f
 <code>error</code> when run, today).</p>
 <h2 id="22-case-mapping-is-the-unicode-standards-full-one">22. Case mapping is the Unicode Standard's full one</h2>
 <p><code>str.to_uppercase</code>, <code>str.to_lowercase</code> and <code>str.to_casefold</code> use the full mappings of the
-Standard (data of Unicode 17.0.0): a result can be longer than its input, and lowercasing
+Standard (data of Unicode 18.0.0): a result can be longer than its input, and lowercasing
 follows Final_Sigma. No language or locale setting changes a result.</p>
 <pre class="text"><code>[rud1] [str.to_uppercase(&quot;straße&quot;), str.to_lowercase(&quot;ΟΔΟΣ&quot;)]  \\&gt; [&quot;STRASSE&quot;,&quot;οδος&quot;]</code></pre>
 <p><code>perl -CS -Mutf8 -e 'print lc("ΟΔΟΣ")'</code> gives <code>οδοσ</code>;

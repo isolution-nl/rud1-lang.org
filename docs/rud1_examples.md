@@ -253,7 +253,7 @@ Output:
 [rud1] [str.to_uppercase("straße"), str.to_lowercase("ΟΔΟΣ")]  \\> ["STRASSE","οδος"]
 [rud1] [str.to_titlecase_first("ijs"), str.to_casefold("ß")]  \\> ["Ijs","ss"]
 [rud1] [str.eq_caseless("Straße", "STRASSE"), "Straße" == "STRASSE"]  \\> [1,0]
-[rud1] [str.is_lowercase("abc"), str.is_uppercase("abc"), str.unicode_version()]  \\> [1,0,[17,0,0]]
+[rud1] [str.is_lowercase("abc"), str.is_uppercase("abc"), str.unicode_version()]  \\> [1,0,[18,0,0]]
 ```
 
 **Code points.**
