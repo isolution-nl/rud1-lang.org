@@ -742,7 +742,7 @@ argument is seldom meant so. Scala's <code>List(1, 2, 3).map(_ * 10)</code> give
 <code>List(10, 20, 30)</code>, Elixir's <code>Enum.map([1,2,3], &amp;(&amp;1 * 10))</code> gives <code>[10, 20, 30]</code>.</p>
 <pre class="text"><code>[rud1] [sum([1..10], _1^2), fold(_1 + 2 * _2, [1, 2, 3])]  \\&gt; [385,11]
 [rud1] my(h(f)= f(1)); [h(_1 + 1), h(_1) + 1]  \\&gt; [2,2]
-1:29 warning: &#39;_1&#39; alone makes the argument of &#39;h&#39; the function x -&gt; x: for a function of the whole, write &#39;x -&gt; …&#39; around the call [W0e969d]</code></pre>
+1:29 warning: &#39;_1&#39; alone makes the argument of &#39;h&#39; the function x -&gt; x: for a function of the whole, write &#39;x -&gt; …&#39; around the call [W03d207]</code></pre>
 <p>Where it matters, the arrow form names the variable: <code>d -&gt; h(d) + 1</code>. The handler of
 <code>guard</code> is the exception: <code>_1</code> there is the failed result itself (<code>guard(v[i], str(_1))</code>).</p>
 <p>Reason (history, generation 12): rud1 is to be as short as gp, whose iterator forms
@@ -907,12 +907,12 @@ are an <code>error</code> since generation 40 (decided in generation 34):</p>
 14. What counts as a silent limit (a value dropped, an argument ignored, a meaning changed,
 a digit cut) is not written down yet.</p>
 <h2 id="28-every-message-has-an-id">28. Every message has an id; <code>--explain</code> tells the ways out</h2>
-<p>A message with more than one way out ends with an id, <code>E0</code> and five hex digits of the SHA-1
-of its dotted name (a warning: <code>W0</code>, of SHA-256), so a changed text keeps its id.
+<p>A message with more than one way out ends with an id, <code>E0</code> and five hex digits of the SHA-256
+of a seed and its dotted name (a warning: <code>W0</code>, by a seed of its own), so a changed text keeps its id.
 <code>rud1 --explain ID</code> prints the explanation, written beside the code that raises the message;
 a policy names a warning by its id or its dotted name.</p>
-<pre class="text"><code>[rud1] t{[t{=n:C}, t{=n:C}]}  \\&gt; 1:1 error a template of parts: both parts name n [E03d0dc]</code></pre>
-<p><code>rud1_run --explain E03d0dc</code> starts with <code>E03d0dc template.parts.same_name</code> and lists the ways
+<pre class="text"><code>[rud1] t{[t{=n:C}, t{=n:C}]}  \\&gt; 1:1 error a template of parts: both parts name n [E038b37]</code></pre>
+<p><code>rud1_run --explain E038b37</code> starts with <code>E038b37 template.parts.same_name</code> and lists the ways
 out. Rust has the same idea (<code>rustc --explain E0308</code>), its ids from a counter.
 Reason (spec, principles): ids come from their origin, “predictable, good for parallelization,
 lock-free'' (the author). Status: built.</p>

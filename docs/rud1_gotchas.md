@@ -376,7 +376,7 @@ manual's.
 
 66. **`%d` does not make a number whole: you do.** Perl's `sprintf("%d", -3.75)` gives
     `-3` (towards zero, Perl 5.44, run), gp's `printf("%d", -3.75)` gives `-4` (floored, gp
-    2.19.0, run). In rud1 `sprintf("%d", -3.75)` is an `error`, `%d takes a whole number, not -3.75000000000000 [E09ffe2]`: the coder picks the rounding, on the value. `-3.75 // 1` is
+    2.19.0, run). In rud1 `sprintf("%d", -3.75)` is an `error`, `%d takes a whole number, not -3.75000000000000 [E0c4893]`: the coder picks the rounding, on the value. `-3.75 // 1` is
     `-4` (floor, as gp; `[3.75 // 1, -3.75 // 1]` is `[3,-4]`); `truncate(-3.75)` is `-3`
     (towards zero, as Perl's `int`); `%s` writes the number as it is.
 

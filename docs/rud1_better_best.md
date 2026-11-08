@@ -410,7 +410,7 @@ argument is seldom meant so. Scala's `List(1, 2, 3).map(_ * 10)` gives
 ```text
 [rud1] [sum([1..10], _1^2), fold(_1 + 2 * _2, [1, 2, 3])]  \\> [385,11]
 [rud1] my(h(f)= f(1)); [h(_1 + 1), h(_1) + 1]  \\> [2,2]
-1:29 warning: '_1' alone makes the argument of 'h' the function x -> x: for a function of the whole, write 'x -> …' around the call [W0e969d]
+1:29 warning: '_1' alone makes the argument of 'h' the function x -> x: for a function of the whole, write 'x -> …' around the call [W03d207]
 ```
 
 Where it matters, the arrow form names the variable: `d -> h(d) + 1`. The handler of
@@ -672,16 +672,16 @@ a digit cut) is not written down yet.
 
 ## 28. Every message has an id; `--explain` tells the ways out
 
-A message with more than one way out ends with an id, `E0` and five hex digits of the SHA-1
-of its dotted name (a warning: `W0`, of SHA-256), so a changed text keeps its id.
+A message with more than one way out ends with an id, `E0` and five hex digits of the SHA-256
+of a seed and its dotted name (a warning: `W0`, by a seed of its own), so a changed text keeps its id.
 `rud1 --explain ID` prints the explanation, written beside the code that raises the message;
 a policy names a warning by its id or its dotted name.
 
 ```text
-[rud1] t{[t{=n:C}, t{=n:C}]}  \\> 1:1 error a template of parts: both parts name n [E03d0dc]
+[rud1] t{[t{=n:C}, t{=n:C}]}  \\> 1:1 error a template of parts: both parts name n [E038b37]
 ```
 
-`rud1_run --explain E03d0dc` starts with `E03d0dc template.parts.same_name` and lists the ways
+`rud1_run --explain E038b37` starts with `E038b37 template.parts.same_name` and lists the ways
 out. Rust has the same idea (`rustc --explain E0308`), its ids from a counter.
 Reason (spec, principles): ids come from their origin, "predictable, good for parallelization,
 lock-free'' (the author). Status: built.

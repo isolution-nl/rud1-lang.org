@@ -324,7 +324,7 @@ for(i= 1, 99, if(i^2 > 200, leave(, i)))
 Output:
 
 ```text
-019.rud:1:1 warning: the script ends in a 'for', which can be undef (exit status 1): end it with '0;' [W02b6c2]
+019.rud:1:1 warning: the script ends in a 'for', which can be undef (exit status 1): end it with '0;' [W0c95f2]
 15
 ```
 
@@ -661,7 +661,7 @@ my(deprecated_( old(x)= x + 1 )_deprecated); old(2)
 Output:
 
 ```text
-037.rud:1:46 warning: 'old' is deprecated: its declaration at 1:4 stands in deprecated_( … )_deprecated [W0bad3d]
+037.rud:1:46 warning: 'old' is deprecated: its declaration at 1:4 stands in deprecated_( … )_deprecated [W00ceb1]
 3
 ```
 
@@ -679,7 +679,7 @@ Another region the author names: `requires_fresh_currency_exchange_rates_( … )
 Every message that has more than one way out carries an id, and `rud1 --explain ID` explains
 it:
 
-`rud1 --explain W0bad3d` says what `deprecated` means, with an example and the ways out,
+`rud1 --explain W00ceb1` says what `deprecated` means, with an example and the ways out,
 among them the policy that moves the warning out of sight.
 
 A policy is set on the command line as `-p.NAME=N` (`--policy.NAME=N`): the level of a

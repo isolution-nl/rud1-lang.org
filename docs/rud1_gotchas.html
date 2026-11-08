@@ -644,7 +644,7 @@ for checks before <code>main()</code>): one list, whose ends run backward.</li>
 <ol start="66">
 <li><strong><code>%d</code> does not make a number whole: you do.</strong> Perl's <code>sprintf("%d", -3.75)</code> gives
 <code>-3</code> (towards zero, Perl 5.44, run), gp's <code>printf("%d", -3.75)</code> gives <code>-4</code> (floored, gp
-2.19.0, run). In rud1 <code>sprintf("%d", -3.75)</code> is an <code>error</code>, <code>%d takes a whole number, not -3.75000000000000 [E09ffe2]</code>: the coder picks the rounding, on the value. <code>-3.75 // 1</code> is
+2.19.0, run). In rud1 <code>sprintf("%d", -3.75)</code> is an <code>error</code>, <code>%d takes a whole number, not -3.75000000000000 [E0c4893]</code>: the coder picks the rounding, on the value. <code>-3.75 // 1</code> is
 <code>-4</code> (floor, as gp; <code>[3.75 // 1, -3.75 // 1]</code> is <code>[3,-4]</code>); <code>truncate(-3.75)</code> is <code>-3</code>
 (towards zero, as Perl's <code>int</code>); <code>%s</code> writes the number as it is.</li>
 </ol>

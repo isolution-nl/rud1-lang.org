@@ -472,7 +472,7 @@ a value, which is a failure ("Errors are states"). The compiler warns on every r
 <pre class="text"><code>[rud1]
 for(i= 1, 99, if(i^2 &gt; 200, leave(, i)))</code></pre>
 <p>Output:</p>
-<pre class="text"><code>019.rud:1:1 warning: the script ends in a &#39;for&#39;, which can be undef (exit status 1): end it with &#39;0;&#39; [W02b6c2]
+<pre class="text"><code>019.rud:1:1 warning: the script ends in a &#39;for&#39;, which can be undef (exit status 1): end it with &#39;0;&#39; [W0c95f2]
 15</code></pre>
 <p>End such a script with <code>0;</code>.</p>
 <h2 id="lists">Lists</h2>
@@ -697,7 +697,7 @@ a memo of each place and item.</p>
 <pre class="text"><code>[rud1]
 my(deprecated_( old(x)= x + 1 )_deprecated); old(2)</code></pre>
 <p>Output:</p>
-<pre class="text"><code>037.rud:1:46 warning: &#39;old&#39; is deprecated: its declaration at 1:4 stands in deprecated_( … )_deprecated [W0bad3d]
+<pre class="text"><code>037.rud:1:46 warning: &#39;old&#39; is deprecated: its declaration at 1:4 stands in deprecated_( … )_deprecated [W00ceb1]
 3</code></pre>
 <p>A region marks a piece of code that may run only under conditions (proposed, designed in
 part): <code>SOx_( … )_SOx</code> around the code that has to comply.
@@ -710,7 +710,7 @@ Another region the author names: <code>requires_fresh_currency_exchange_rates_( 
 <h2 id="messages-and-policies">Messages and policies</h2>
 <p>Every message that has more than one way out carries an id, and <code>rud1 --explain ID</code> explains
 it:</p>
-<p><code>rud1 --explain W0bad3d</code> says what <code>deprecated</code> means, with an example and the ways out,
+<p><code>rud1 --explain W00ceb1</code> says what <code>deprecated</code> means, with an example and the ways out,
 among them the policy that moves the warning out of sight.</p>
 <p>A policy is set on the command line as <code>-p.NAME=N</code> (<code>--policy.NAME=N</code>): the level of a
 warning, the warnings shown (<code>-p.warnings=0</code> shows none), a trace of each <code>uint</code> that went
