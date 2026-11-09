@@ -68,10 +68,11 @@ same tree are an error, not a file that some other reader takes differently.
 [rud1] unpack(t{$dec+ || $hex[2]}, b"15")  \\ [15]
 ```
 
-**Unicode as the Standard has it.** A `str` is code points, `bytes` is another type, and
-case mapping is the Standard's full one.
+**Unicode as the Standard has it.** A `str` is characters (extended grapheme clusters), `bytes` is
+another type, and case mapping is the Standard's full one.
 
 ```
+[rud1] #"he\u{301}llo"  \\ 5
 [rud1] str.to_uppercase("straße")  \\ "STRASSE"
 ```
 
@@ -88,7 +89,7 @@ named arguments, lazy lists.
 - The format translator, written with templates as their first user; `printf` whose
   sub-formats are functions, so that modules add conversions; later `pandoc.rud`.
 - Templates that change what they read next from the data (hooks), and the rest of text:
-  normalization, word boundaries.
+  word boundaries.
 - A compiler, with ports of the prototype to C++, Rust and the JVM; a compiled program that
   carries enough to give back its normalized source.
 - A small core, with the rest written in rud1 itself: a port to a host language replaces a
