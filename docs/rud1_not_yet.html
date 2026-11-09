@@ -637,7 +637,9 @@ my(BASE= 2, digits(n)= if(n &lt; BASE, [n], __SELF__(n // BASE) ~ [n % BASE]));
 digits(91)  \\&gt; [1,0,1,1,0,1,1]</code></pre>
 <h2 id="input-and-output-spec-5a-5c">Input and output (spec §5a, §5c)</h2>
 <p>Built: <code>read_line()</code> on standard input, <code>say</code> and <code>print</code> on standard output, <code>exit(n)</code> and
-<code>exit(n, msg)</code> (the message goes to standard error). Nothing else.</p>
+<code>exit(n, msg)</code> (the message goes to standard error); <code>unpack(t)</code> on standard input (spec §5d);
+<code>mark(v)</code>, a line (node, process id, value) on the file descriptor that <code>rud1_run -p.marks.fd=N</code>
+names, none without it. <code>printf 'AB' | rud1_run -e 'unpack(t{C x*})'</code> gives <code>[65,b"B"]</code>.</p>
 <table>
 <thead>
 <tr>
@@ -678,12 +680,6 @@ digits(91)  \\&gt; [1,0,1,1,0,1,1]</code></pre>
 <td style="text-align: left;">(runs: effects are not inferred yet; decided: the function inferred impure, in a hook a compile error, spec §2, generation 53)</td>
 <td style="text-align: left;">—</td>
 </tr>
-<tr>
-<td style="text-align: left;">a mark from pure code: a fire-and-forget write to a logging pipe</td>
-<td style="text-align: left;">decided</td>
-<td style="text-align: left;">(no form to try; its name and the pipe are open)</td>
-<td style="text-align: left;">—</td>
-</tr>
 </tbody>
 </table>
 <p>(a) Every line of standard input, here the three lines <code>3</code>, <code>4</code>, <code>5</code>:</p>
@@ -699,7 +695,8 @@ total  \\&gt; 12</code></pre>
 <h2 id="templates-spec-5d">Templates (spec §5d)</h2>
 <p>Built: <code>unpack(t, b)</code> and <code>unpack(t, b, given: g)</code> on a <code>bytes</code> value, with every form that
 the template parser reads; <code>pack(t, r)</code>, the simple version (generation 41, spec §5d "The writer's rules");
-the template parser reads, and the <code>template</code> value (<code>t{…}</code>, <code>template(s)</code>, <code>~</code>, <code>~*</code>).
+the template parser reads, and the <code>template</code> value (<code>t{…}</code>, <code>template(s)</code>, the join <code>t{[t, u]}</code>;
+<code>~</code> and <code>~*</code> of templates are an error, spec §5d).
 Sentences of the spec that still say "<code>unpack</code> is not built" are older than that build.</p>
 <table>
 <thead>
@@ -854,16 +851,21 @@ strict; <code>||</code> ("or else") says that the first one wins:</p>
 beyond <code>use</code>.</p>
 <h2 id="policies-and-configuration-spec-8-9a">Policies and configuration (spec §8, §9a)</h2>
 <p>The spec lets a policy (of a company, of a project) turn a warning into an error or into
-silence. The switches, the configuration file (its format is open) and strict mode (open)
-are not built: <code>rud1_run</code> has no option for one (<code>rud1_run -h</code> lists
-<code>-c</code>, <code>-e</code>, <code>-f</code>) and no form in a program sets one. Every check has its default. The one
-policy that can be asked for today stands in the header of a template:</p>
+silence. Built: the switches of <code>rud1_run</code> (<code>rud1_run -h</code> lists them): <code>-p.warnings=N</code> and
+<code>-p.warnings.NAME=N</code> (a warning silenced or kept), <code>-p.errors=1</code> and <code>-p.errors.NAME=1</code> (a warning
+made a compile error), <code>-p.underflow.trace=1</code>, <code>-p.debug.fd=N</code>, <code>-p.marks.fd=N</code>,
+<code>-p.kept_bytes.max=N</code>, <code>-p.self_by_name=1</code>, <code>-p.messages.funny=N</code>, and several in one argument,
+<code>-p.{NAME=N:…}</code>. Not built: the configuration file (its format is open), strict mode (open), and a
+form in a program that sets a policy. The one policy that a program can ask for today stands in the
+header of a template:</p>
 <pre class="text"><code>[rud1] unpack(t{%[.]}, b&quot;.&quot;)
 \\ 1:8 error template 1:3: the byte &#39;.&#39; of a set is escaped (\.) or stands in an inner bracket ([.])</code></pre>
 <pre class="text"><code>[rud1] unpack(t{(*policy.punctuation.bare: 2) %[.]}, b&quot;.&quot;)  \\&gt; [b&quot;.&quot;]</code></pre>
 <h2 id="concurrency-spec-9a">Concurrency (spec §9a)</h2>
-<p>Proposed, all of it: <code>async</code> and <code>await</code>, the state <code>pending</code>, the parallel
-forms with gp's names.</p>
+<p>Built (spec §9a, A19): <code>parapply</code>, <code>parselect</code>, <code>parsum</code> and <code>parvector</code>, gp's names, over
+the core form <code>_par_(L)</code>, which forces each element of <code>L</code> in a task of its own; an element must
+be pure. Not built: <code>parfor</code>, <code>async</code> and <code>await</code>, the state <code>pending</code>.</p>
+<pre class="text"><code>[rud1] [parapply(x -&gt; x + 1, [1, 2]), parselect(x -&gt; x &gt; 1, [1, 2, 3]), parsum([1, 2, 3])]  \\&gt; [[2,3],[2,3],6]</code></pre>
 <table>
 <thead>
 <tr>
@@ -1024,7 +1026,7 @@ the budget up, and what was written before is lost with it.<br />
 <code>\\ start</code><br />
 <code>\\ 20000</code></li>
 <li>Indexing a list is linear in the index. A list made by a range or a comprehension keeps
-the cells and the elements it reached from its second index on (a memo of the 64 lists used
+the cells and the elements it reached from the first ask on, each element computed once (a memo of the 64 lists used
 most recently, <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mn>2</mn><mn>22</mn></msup><annotation encoding="application/x-tex">2^{22}</annotation></semantics></math> cells in all), so a loop over the indices is linear, as a walk is; a loop that takes turns
 over more than 64 such lists computes them again.<br />
 <code>[rud1] my(N= 2000, L= [1..N]); mut my(s= 0); for(i &lt;- [0..N-1], s+= L[i]); s \\ 2001000</code></li>
@@ -1046,7 +1048,8 @@ message (under <code>{underflow: keep}</code>, not built, the <code>sint</code> 
 <code>[rud1] my(v= [10, 20, 30, 40]); v[0, 9] \\ we exited &lt;error("[10, 20, 30, 40][9]: index 9 is outside 0 .. 3")&gt; at (index #0 #2)</code></li>
 <li>A column counts bytes, not characters: this <code>zz</code> is the sixth character.<br />
 <code>[rud1] "é"; zz \\ 1:7 error undeclared 'zz'</code></li>
-<li>Values: a float shows 15 digits; there is no negative zero; a function shows as its
+<li>Values: a float is exact, its decimals shown in full (at least 15 significant digits) where they
+end, else as a continued fraction (<code>1.0 / 3</code> is <code>0.[3]</code>); there is no negative zero; a function shows as its
 name or as a core term (rows above).</li>
 </ul>
 </body>

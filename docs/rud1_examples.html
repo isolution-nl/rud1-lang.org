@@ -227,7 +227,7 @@ with its result after <code>\\&gt;</code> or in a block headed "Output:".</p>
 [rud1] [fold(_+_, [1, 2, 3, 4]), fold(_*_, 1, [1..6])]  \\&gt; [10,720]
 [rud1] scan(_+_, [1, 2, 3, 4])  \\&gt; [1,3,6,10]
 [rud1] [max(3, 9, 4), min([5, 2, 8]), fold(max, [3, 9, 4])]  \\&gt; [9,2,9]</code></pre>
-<p><strong>Strings.</strong> <code>~</code> joins, <code>~*</code> repeats, <code>#</code> counts code points; <code>str</code> gives the text of a number, <code>T.read</code> reads one.</p>
+<p><strong>Strings.</strong> <code>~</code> joins, <code>~*</code> repeats, <code>#</code> counts characters (extended grapheme clusters); <code>str</code> gives the text of a number, <code>T.read</code> reads one.</p>
 <pre class="text"><code>[rud1] [&quot;abc&quot; ~ &quot;def&quot;, &quot;ab&quot; ~* 3, #&quot;héllo&quot;]  \\&gt; [&quot;abcdef&quot;,&quot;ababab&quot;,5]
 [rud1] [str(42) ~ &quot;!&quot;, sint.read(&quot;42&quot;) + 1]  \\&gt; [&quot;42!&quot;,43]
 [rud1] str.split(&quot;a,b,c&quot;, &quot;,&quot;)  \\&gt; [&quot;a&quot;,&quot;b&quot;,&quot;c&quot;]
@@ -317,8 +317,9 @@ for(i= 1, N, say(str.join([str(i * j) | j &lt;- [1..N]], &quot; &quot;)));
 <pre class="text"><code>[rud1] mut my(s= 0); for(i= 1, 10, if(0 == i % 2, next()); s+= i); s  \\&gt; 25
 [rud1] mut my(s= 0); for(x &lt;- [1, 2], for(y &lt;- [10, 20], if(20 == y, next(2)); s+= x + y)); s  \\&gt; 23</code></pre>
 <h2 id="strings-and-unicode">Strings and Unicode</h2>
-<p><strong>The <code>str.</code> family.</strong> A <code>str</code> has no index; <code>str.to_characters</code> splits it into its code points, each a
-<code>str</code> of one.</p>
+<p><strong>The <code>str.</code> family.</strong> An index of a <code>str</code> gives a character (<code>"héllo"[1]</code> is <code>"é"</code>); <code>str.to_characters</code> splits it
+into its characters, each a <code>str</code> of one: <code>str.to_characters("e\u{301}")</code> is <code>["é"]</code>, one character of
+two code points.</p>
 <pre class="text"><code>[rud1] str.to_characters(&quot;héllo&quot;)  \\&gt; [&quot;h&quot;,&quot;é&quot;,&quot;l&quot;,&quot;l&quot;,&quot;o&quot;]
 [rud1] [str.substr(&quot;hello&quot;, 1, 3), str.substr(&quot;hello&quot;, -3)]  \\&gt; [&quot;ell&quot;,&quot;llo&quot;]
 [rud1] [str.split(&quot;a,,b&quot;, &quot;,&quot;), str.split(&quot;héé&quot;, &quot;&quot;)]  \\&gt; [[&quot;a&quot;,&quot;&quot;,&quot;b&quot;],[&quot;h&quot;,&quot;é&quot;,&quot;é&quot;]]
@@ -754,7 +755,7 @@ pieces in the order of the target. A text of bytes is written <code>b"…"</code
 <h3 id="five-swaps">Five swaps</h3>
 <p><code>v.swap(r1, r2)</code> is <code>swap(v, r1, r2)</code>: the list <code>v</code> with the blocks at the two ranges
 traded, which may differ in length. Here the swaps work on the list of characters, and
-<code>str.join</code> makes a text of them again; a <code>str</code> takes the same swaps by code point. A search found no way with four swaps.</p>
+<code>str.join</code> makes a text of them again; a <code>str</code> takes the same swaps by character. A search found no way with four swaps.</p>
 <pre class="text"><code>? my
   ( c= &quot;piet mondrian &quot;.to_characters()
     .swap([0..0], [1..1])
@@ -1010,7 +1011,7 @@ say(longest(703));</code></pre>
 [703,171]</code></pre>
 <h3 id="reverse-a-string-rosettaseasonedreverse_a_stringrud">Reverse a string (<code>rosetta/seasoned/Reverse_a_string.rud</code>)</h3>
 <pre class="text"><code>[rud1]
-/* Rosetta Code: Reverse a string (by code points) */
+/* Rosetta Code: Reverse a string (by characters) */
 my(reverse(s)= fold((r, c) -&gt; c ~ r, &quot;&quot;, str.to_characters(s)));
 say(reverse(&quot;asdf&quot;));
 say(reverse(&quot;møøse&quot;));</code></pre>

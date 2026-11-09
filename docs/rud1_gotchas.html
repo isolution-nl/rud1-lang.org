@@ -521,7 +521,7 @@ alike". <code>(?u: %[à] || "x")</code> reads.</li>
 <li><strong>A template is no <code>str</code>, and its <code>str</code> is not what you typed.</strong> <code>t{C n} == "C n"</code>,
 <code>t{C n} ~ " v"</code>, <code>#t</code> and <code>str.to_uppercase(t)</code> are all an <code>error</code>: a <code>template</code> is
 never used as a <code>str</code> by itself. Say which is meant: <code>str(t) == "C n"</code> or
-<code>t == template("C  n")</code>, <code>str(t) ~ " v"</code> or <code>t ~ template(" v")</code>, <code>#str(t)</code>. And <code>str(t)</code>
+<code>t == template("C  n")</code>, <code>str(t) ~ " v"</code> or <code>t{[t, template(" v")]}</code>, <code>#str(t)</code>. And <code>str(t)</code>
 is the normalized form: <code>str(t{a[4]})</code> is <code>"a4"</code>, <code>str(t{C  n})</code> is <code>"C n"</code>, without
 comments and without a policy header. <code>say(t)</code> writes it; a result shows <code>t{a4}</code>. Two
 templates compare by it (<code>t{C  n} == t{C n}</code>), which is the same spelling, not the same

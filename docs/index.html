@@ -243,9 +243,10 @@ that some other reader takes differently.</p>
 <pre><code>[rud1] unpack(t{$dec+ | $hex[2]}, b&quot;15&quot;)  \\ 1:8 error template 1:1: variants 1 and 2 can read the same text, &quot;11&quot;: make one of them narrower, or write &#39;||&#39; where the first is to win
 [rud1] unpack(t{$dec+ || $hex[2]}, b&quot;15&quot;)  \\ [15]</code></pre>
 <p><strong>Unicode as the Standard has it.</strong> A <code>str</code>
-is code points, <code>bytes</code> is another type, and case mapping is
-the Standard's full one.</p>
-<pre><code>[rud1] str.to_uppercase(&quot;straße&quot;)  \\ &quot;STRASSE&quot;</code></pre>
+is characters (extended grapheme clusters), <code>bytes</code> is
+another type, and case mapping is the Standard's full one.</p>
+<pre><code>[rud1] #&quot;he\u{301}llo&quot;  \\ 5
+[rud1] str.to_uppercase(&quot;straße&quot;)  \\ &quot;STRASSE&quot;</code></pre>
 <p><strong>Terse where it counts.</strong> Comprehensions, ranges that
 hold both ends, placeholders, <code>defer</code>, named arguments, lazy
 lists.</p>
@@ -259,7 +260,7 @@ static.</li>
 <code>printf</code> whose sub-formats are functions, so that modules add
 conversions; later <code>pandoc.rud</code>.</li>
 <li>Templates that change what they read next from the data (hooks), and
-the rest of text: normalization, word boundaries.</li>
+the rest of text: word boundaries.</li>
 <li>A compiler, with ports of the prototype to C++, Rust and the JVM; a
 compiled program that carries enough to give back its normalized
 source.</li>

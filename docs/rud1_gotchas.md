@@ -246,7 +246,7 @@ backslash form exists only inside a quote or a set.
 46. **A template is no `str`, and its `str` is not what you typed.** `t{C n} == "C n"`,
     `t{C n} ~ " v"`, `#t` and `str.to_uppercase(t)` are all an `error`: a `template` is
     never used as a `str` by itself. Say which is meant: `str(t) == "C n"` or
-    `t == template("C  n")`, `str(t) ~ " v"` or `t ~ template(" v")`, `#str(t)`. And `str(t)`
+    `t == template("C  n")`, `str(t) ~ " v"` or `t{[t, template(" v")]}`, `#str(t)`. And `str(t)`
     is the normalized form: `str(t{a[4]})` is `"a4"`, `str(t{C  n})` is `"C n"`, without
     comments and without a policy header. `say(t)` writes it; a result shows `t{a4}`. Two
     templates compare by it (`t{C  n} == t{C n}`), which is the same spelling, not the same

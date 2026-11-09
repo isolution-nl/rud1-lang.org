@@ -64,7 +64,7 @@ means C++, Rust, Java, Perl, Python and gp.
 | 36 | modules accepted by a proof of the importer's spec | — | the rest | decided |
 | 37 | regions and taint, inferred when compiled | Perl's `-T` (input only) | the rest | decided |
 | 38 | `sym` parameters, quoting; no `eval`, no macros | Zig's `comptime` | Perl, Python (`eval`), Rust (macros) | decided |
-| 39 | pure parallelism, a fixed reduction order, no locks | gp's `par*` | C++, Java, Python | decided |
+| 39 | pure parallelism, a fixed reduction order, no locks | gp's `par*` | C++, Java, Python | built but `parfor` |
 | 40 | modules are values; no reach into `__MAIN__` | Perl | Python | decided |
 | 41 | the executable is safe (dry-run) by default | — | everyone | decided |
 | 42 | the reference implementation is rud1's own | — | the rest | decided |
@@ -238,14 +238,14 @@ grep-ability."). Status: built.
 
 `true` and `false` are values of a type of their own, shown as `1` and `0`. A `bool` is no
 number: arithmetic on it is an `error`, `uint(b)` is 0 or 1, and a count of the elements that
-pass a test is `#[x | x <- L, x > 3]`. It is not compared with a number
-and it is no index (`v[true]` is an `error`). A condition takes a `bool` and nothing else: gp's
+pass a test is `#[x | x <- L, x > 3]`. Against a number it is 0 or 1 under `==`, `!=` and
+`===` (`true == 1`, A45.4), but not ordered (`true < 2` is an `error`), and it is no index (`v[true]` is an `error`). A condition takes a `bool` and nothing else: gp's
 `if(n%2, …)` is `if(0 != n % 2, …)`, `while(1, …)` is `while(true, …)`; `0`, `""` and `[]`
 are not false (decision 521).
 
 ```text
 [rud1] [uint(true) + uint(true), #[x | x <- [1, 5, 7], x > 3]]  \\> [2,2]
-[rud1] true == 1  \\> we exited <error("true == 1: a bool and a uint are not compared ('===' tells whether two values are the same)")> at 1:1
+[rud1] true < 2  \\> we exited <error("true < 2: a bool and a uint are not compared ('===' tells whether two values are the same)")> at 1:1
 [rud1] [10, 20][uint(true)]  \\> 20
 ```
 
@@ -255,14 +255,14 @@ are not false (decision 521).
 Reason (the author, generation 29): "Built-ins should be strict where feasible"; a user's
 type may allow more. Status: built.
 
-## 10. `==` compares values, `===` asks for the same kind too
+## 10. `==` compares values, `===` asks whether they are the same
 
 `==` promotes numbers as arithmetic does and ignores the names of a list's fields. `===`
-is identity: exact numbers by value, a float only with a float, names included. Values of
+is identity: numbers by value whatever their kind, names included. Values of
 different families are an `error` under `==` and plainly not identical under `===`.
 
 ```text
-[rud1] [1 == 1.0, 1 === 1.0, 0.5 == 1/2, 4/2 === 2]  \\> [1,0,1,1]
+[rud1] [1 == 1.0, 1 === 1.0, 0.5 == 1/2, 4/2 === 2]  \\> [1,1,1,1]
 [rud1] [[x: 1] == [1], [x: 1] === [1]]  \\> [1,0]
 [rud1] "1" == 1  \\> we exited <error("\"1\" == 1: a str and a uint are not compared ('===' tells whether two values are the same)")> at 1:1
 [rud1] "1" === 1  \\> 0
@@ -270,10 +270,9 @@ different families are an `error` under `==` and plainly not identical under `==
 
 Reason: `===` is gp's identity; `==` promotes because otherwise `0.1 - 1/10 == 0` and
 `0.1 == 1/10` would disagree. On the `error` (generation 29): "let's not allow `==` between
-differently typed values, unless they are really of the exact same family". Status: built;
-the spec still marks the rule of `===` as proposed. A float and a rational are separate types
-for now, so `0.1 === 1/10` is 0 (generation 49; open whether they are one value); in the
-prototype `0.1` is an error (section 5).
+differently typed values, unless they are really of the exact same family". Status: built.
+A float and a rational of one value are the same number, so `0.1 === 1/10` is 1 (the prototype
+keeps `0.1` exact, section 5).
 
 ## 11. Comparisons chain, in one direction
 
@@ -379,8 +378,9 @@ list may be endless (`oo` as a bound).
 [rud1] [x^2 | x <- [1..oo], 0 == x % 3][0..3]  \\> [9,36,81,144]
 ```
 
-gp's comprehensions are strict. Status: built by name: an element is computed again each
-time it is asked for. The spec's rule (computed once, then kept) is not built.
+gp's comprehensions are strict. Status: built: an element is computed once, at the first ask,
+then kept; `my(L= [mark(x) | x <- [1..3]]); [L[2], L[2], L[2]]` under `rud1_run -p.marks.fd=2`
+writes one mark line.
 
 ## 16. An operator is a function with a name
 
@@ -515,9 +515,8 @@ units, 2 for one code point above FFFF.
 
 Reason: for `s[i]` the spec gives the rule only; for `+` it names the trap of one operator
 that adds and joins. Status: built: `str` and its `str.` family; of `bytes` the literal,
-`#`, the index, `~`, the comparisons and `str(b)`, the checked way to a `str`. Not built:
-`str.to_graphemes`, `bytes(s)`, the compile error for a `str` joined with `bytes` (an
-`error` when run, today).
+`#`, the index, `~`, the comparisons and `str(b)`, the checked way to a `str`. `str.to_graphemes` and `bytes(s)` (`bytes("é")` is `b"\x{c3}\x{a9}"`) are built
+as well. Not built: the compile error for a `str` joined with `bytes` (an `error` when run, today).
 
 ## 22. Case mapping is the Unicode Standard's full one
 
@@ -665,8 +664,8 @@ are an `error` since generation 40 (decided in generation 34):
 [rud1] mut my(v= [0, 0, 0]); v[0, 1]= [5, 6, 7]; v  \\> we exited <error("scatter assignment: more than 2 values for 2 positions")> at 1:23
 ```
 
-Others on that list: a type word that is not used (section 4), the binary float of section
-5 (since generation 49 an error where it would round), and an old `[1, 3..9]` that changed its meaning with section
+Others on that list: a type word that is not used (section 4), the binary float that section
+5 replaced (exact since A21.6), and an old `[1, 3..9]` that changed its meaning with section
 14. What counts as a silent limit (a value dropped, an argument ignored, a meaning changed,
 a digit cut) is not written down yet.
 
@@ -714,7 +713,7 @@ The default float has no fixed precision, as `uint` has no fixed size; a native 
 or `oo`, and the state is always `overflow`. C++, Java, Perl and Python compute in binary64,
 Rust and C++ in fixed widths unless asked; Rust names the wrap per operation
 (`wrapping_sub`). Reason (the author, generation 29): "Types are by default of infinite
-precision.'' Status: decided; today a float is binary64 and stops where it would round
+precision.'' Status: decided; the prototype's float is exact, a rational
 (section 5).
 
 ## 32. A type has a number of values
@@ -779,7 +778,8 @@ gp's names, `parapply`, `parsum`, `parfor`, take pure arguments only, and a redu
 runs in a fixed tree order, so a sum of floats gives the same result on any number of threads.
 Shared data is immutable and a `{mut}` buffer can't cross threads: no locks in user code.
 Rust keeps a mutable value on one thread too; C++, Java and Python leave the locks and the order
-to the coder. Status: decided.
+to the coder. Status: built but `parfor`: `parapply`, `parselect`, `parsum` and `parvector`
+(`parsum([1, 2, 3])` is 6); `parfor`, `async` and `await` are not built.
 
 ## 40. A module is a value
 
@@ -787,7 +787,8 @@ to the coder. Status: decided.
 module that ends undefined or `false` is refused, Perl's rule without its truthiness. A module
 can't reach `__MAIN__`; there is no `our`, no `local`, no `CORE::GLOBAL`.
 `CORE.say` is the language's `say`, as Perl's `CORE::say`. Python's modules are objects
-that any code can change. Status: decided; the startup module and `__CORE__` are built.
+that any code can change. Status: decided; the startup module is built, `__CORE__` is proposed and its spelling open
+(`__CORE__.sum([1, 2])` is the compile error `undeclared '__CORE__'`).
 
 ## 41. Safe by default
 

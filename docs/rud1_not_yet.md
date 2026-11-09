@@ -157,7 +157,9 @@ digits(91)  \\> [1,0,1,1,0,1,1]
 ## Input and output (spec §5a, §5c)
 
 Built: `read_line()` on standard input, `say` and `print` on standard output, `exit(n)` and
-`exit(n, msg)` (the message goes to standard error). Nothing else.
+`exit(n, msg)` (the message goes to standard error); `unpack(t)` on standard input (spec §5d);
+`mark(v)`, a line (node, process id, value) on the file descriptor that `rud1_run -p.marks.fd=N`
+names, none without it. `printf 'AB' | rud1_run -e 'unpack(t{C x*})'` gives `[65,b"B"]`.
 
 | Form | Status | Today | Meanwhile |
 |---|---|---|---|
@@ -166,7 +168,6 @@ Built: `read_line()` on standard input, `say` and `print` on standard output, `e
 | `my(f= open("data.txt")); read(f)` | open | `1:7 error undeclared 'open'` | the shell: `rud1 file.rud < data.txt > out.txt`, and (a) below |
 | `read_line(1)` | open | `1:1 error call of 'read_line': too many arguments` (the other read verbs, timeouts, layers: their names are open) | — |
 | `now()`, `today()`, `time()`, `process.…` in a function not marked `impure`, or a hook | decided | (runs: effects are not inferred yet; decided: the function inferred impure, in a hook a compile error, spec §2, generation 53) | — |
-| a mark from pure code: a fire-and-forget write to a logging pipe | decided | (no form to try; its name and the pipe are open) | — |
 
 \(a\) Every line of standard input, here the three lines `3`, `4`, `5`:
 
@@ -186,7 +187,8 @@ total  \\> 12
 
 Built: `unpack(t, b)` and `unpack(t, b, given: g)` on a `bytes` value, with every form that
 the template parser reads; `pack(t, r)`, the simple version (generation 41, spec §5d "The writer's rules");
-the template parser reads, and the `template` value (`t{…}`, `template(s)`, `~`, `~*`).
+the template parser reads, and the `template` value (`t{…}`, `template(s)`, the join `t{[t, u]}`;
+`~` and `~*` of templates are an error, spec §5d).
 Sentences of the spec that still say "`unpack` is not built" are older than that build.
 
 | Form | Status | Today | Meanwhile |
@@ -239,10 +241,13 @@ beyond `use`.
 ## Policies and configuration (spec §8, §9a)
 
 The spec lets a policy (of a company, of a project) turn a warning into an error or into
-silence. The switches, the configuration file (its format is open) and strict mode (open)
-are not built: `rud1_run` has no option for one (`rud1_run -h` lists
-`-c`, `-e`, `-f`) and no form in a program sets one. Every check has its default. The one
-policy that can be asked for today stands in the header of a template:
+silence. Built: the switches of `rud1_run` (`rud1_run -h` lists them): `-p.warnings=N` and
+`-p.warnings.NAME=N` (a warning silenced or kept), `-p.errors=1` and `-p.errors.NAME=1` (a warning
+made a compile error), `-p.underflow.trace=1`, `-p.debug.fd=N`, `-p.marks.fd=N`,
+`-p.kept_bytes.max=N`, `-p.self_by_name=1`, `-p.messages.funny=N`, and several in one argument,
+`-p.{NAME=N:…}`. Not built: the configuration file (its format is open), strict mode (open), and a
+form in a program that sets a policy. The one policy that a program can ask for today stands in the
+header of a template:
 
 ```text
 [rud1] unpack(t{%[.]}, b".")
@@ -255,8 +260,13 @@ policy that can be asked for today stands in the header of a template:
 
 ## Concurrency (spec §9a)
 
-Proposed, all of it: `async` and `await`, the state `pending`, the parallel
-forms with gp's names.
+Built (spec §9a, A19): `parapply`, `parselect`, `parsum` and `parvector`, gp's names, over
+the core form `_par_(L)`, which forces each element of `L` in a task of its own; an element must
+be pure. Not built: `parfor`, `async` and `await`, the state `pending`.
+
+```text
+[rud1] [parapply(x -> x + 1, [1, 2]), parselect(x -> x > 1, [1, 2, 3]), parsum([1, 2, 3])]  \\> [[2,3],[2,3],6]
+```
 
 | Form | Status | Today | Meanwhile |
 |---|---|---|---|
@@ -352,7 +362,7 @@ each with what it prints now:
   `\\ start`\
   `\\ 20000`
 - Indexing a list is linear in the index. A list made by a range or a comprehension keeps
-  the cells and the elements it reached from its second index on (a memo of the 64 lists used
+  the cells and the elements it reached from the first ask on, each element computed once (a memo of the 64 lists used
   most recently, $`2^{22}`$ cells in all), so a loop over the indices is linear, as a walk is; a loop that takes turns
   over more than 64 such lists computes them again.\
   `[rud1] my(N= 2000, L= [1..N]); mut my(s= 0); for(i <- [0..N-1], s+= L[i]); s \\ 2001000`
@@ -374,5 +384,6 @@ each with what it prints now:
   `[rud1] my(v= [10, 20, 30, 40]); v[0, 9] \\ we exited <error("[10, 20, 30, 40][9]: index 9 is outside 0 .. 3")> at (index #0 #2)`
 - A column counts bytes, not characters: this `zz` is the sixth character.\
   `[rud1] "é"; zz \\ 1:7 error undeclared 'zz'`
-- Values: a float shows 15 digits; there is no negative zero; a function shows as its
+- Values: a float is exact, its decimals shown in full (at least 15 significant digits) where they
+  end, else as a continued fraction (`1.0 / 3` is `0.[3]`); there is no negative zero; a function shows as its
   name or as a core term (rows above).

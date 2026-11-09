@@ -116,9 +116,9 @@ does not silently become a negative number, which protects an index; the result 
 
 A literal with a dot is a float; a digit is needed on both sides of the dot (`1.0`, not
 `1.`). An operation with one float operand gives a float. The default float of the release
-has infinite precision (decided). The prototype's float is binary, 64 bits, and where that
-would round it stops instead of giving a value rud1 would not give: `0.1` is an error there,
-`1/10` is exact. Without a dot a literal stays exact: `1e3` is the whole number 1000,
+has infinite precision (decided). The prototype's float is a rational, every operation exact:
+`0.1` is 1/10, `1.0 / 3` is shown `0.[3]` (a continued fraction, where the decimals do
+not end), and a whole result is an integer (`1.5 * 2` is 3). Without a dot a literal stays exact: `1e3` is the whole number 1000,
 `2e-3` the rational 1/500. A concession is made only at the interface of a library from outside,
 and tightened there as far as it goes.
 
@@ -142,12 +142,13 @@ Output:
 ```
 
 A comparison gives a `bool`, shown as `1` or `0`. `==` compares values across the kinds of
-number, `===` asks for the same kind as well. Comparisons chain. There is no `&&` and no
-`||`: `and` and `or` stop at the first argument that decides, and `!` is "not". False
-are `0`, `0.0` and `false`; an empty list and an empty string are true.
+number and refuses two values it cannot compare (a number and a `str`); `===` asks whether two
+values are the same, and gives `0` there. Comparisons chain. There is no `&&` and no
+`||`: `and` and `or` stop at the first argument that decides, and `!` is "not". A condition
+takes a `bool`: `if(0, 1, 2)` is a compile error, `if(0 != n, 1, 2)` the form.
 
 ```text
-? [1 == 1.0, 1 === 1.0, 1 < 2 <= 2, 1 <=> 2, and(true, false), or(false, true), !false]
+? [1 == 1.0, 1 === "1", 1 < 2 <= 2, 1 <=> 2, and(true, false), or(false, true), !false]
 > [1,0,1,-1,0,1,1]
 ```
 
@@ -241,7 +242,8 @@ item per line.
 
 A function that takes a function is called with a lambda, with a placeholder (`_1` is the
 first argument, `_2` the second) or with an operator's name (`_+_`, `_*_`). The startup
-functions `fold`, `max`, `min`, `prod`, `scan` and `sum` work so. A lambda takes the value
+functions `fold`, `prod`, `scan` and `sum` work so; `max` and `min` take the elements
+only (`max(apply(f, v))` for a function). A lambda takes the value
 a name has when the lambda is made, and it cannot assign a `mut` of the code around it.
 
 ```text

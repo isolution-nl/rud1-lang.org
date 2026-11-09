@@ -66,7 +66,7 @@ with its result after `\\>` or in a block headed "Output:".
 [rud1] [max(3, 9, 4), min([5, 2, 8]), fold(max, [3, 9, 4])]  \\> [9,2,9]
 ```
 
-**Strings.** `~` joins, `~*` repeats, `#` counts code points; `str` gives the text of a number, `T.read` reads one.
+**Strings.** `~` joins, `~*` repeats, `#` counts characters (extended grapheme clusters); `str` gives the text of a number, `T.read` reads one.
 
 ```text
 [rud1] ["abc" ~ "def", "ab" ~* 3, #"héllo"]  \\> ["abcdef","ababab",5]
@@ -236,8 +236,9 @@ Output:
 
 ## Strings and Unicode
 
-**The `str.` family.** A `str` has no index; `str.to_characters` splits it into its code points, each a
-`str` of one.
+**The `str.` family.** An index of a `str` gives a character (`"héllo"[1]` is `"é"`); `str.to_characters` splits it
+into its characters, each a `str` of one: `str.to_characters("e\u{301}")` is `["é"]`, one character of
+two code points.
 
 ```text
 [rud1] str.to_characters("héllo")  \\> ["h","é","l","l","o"]
@@ -714,7 +715,7 @@ pieces in the order of the target. A text of bytes is written `b"…"`.
 
 `v.swap(r1, r2)` is `swap(v, r1, r2)`: the list `v` with the blocks at the two ranges
 traded, which may differ in length. Here the swaps work on the list of characters, and
-`str.join` makes a text of them again; a `str` takes the same swaps by code point. A search found no way with four swaps.
+`str.join` makes a text of them again; a `str` takes the same swaps by character. A search found no way with four swaps.
 
 ```text
 ? my
@@ -1022,7 +1023,7 @@ Output:
 
 ```text
 [rud1]
-/* Rosetta Code: Reverse a string (by code points) */
+/* Rosetta Code: Reverse a string (by characters) */
 my(reverse(s)= fold((r, c) -> c ~ r, "", str.to_characters(s)));
 say(reverse("asdf"));
 say(reverse("møøse"));

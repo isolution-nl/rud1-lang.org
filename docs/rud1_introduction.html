@@ -338,9 +338,9 @@ does not silently become a negative number, which protects an index; the result 
 &gt; &quot;below 0&quot;</code></pre>
 <p>A literal with a dot is a float; a digit is needed on both sides of the dot (<code>1.0</code>, not
 <code>1.</code>). An operation with one float operand gives a float. The default float of the release
-has infinite precision (decided). The prototype's float is binary, 64 bits, and where that
-would round it stops instead of giving a value rud1 would not give: <code>0.1</code> is an error there,
-<code>1/10</code> is exact. Without a dot a literal stays exact: <code>1e3</code> is the whole number 1000,
+has infinite precision (decided). The prototype's float is a rational, every operation exact:
+<code>0.1</code> is 1/10, <code>1.0 / 3</code> is shown <code>0.[3]</code> (a continued fraction, where the decimals do
+not end), and a whole result is an integer (<code>1.5 * 2</code> is 3). Without a dot a literal stays exact: <code>1e3</code> is the whole number 1000,
 <code>2e-3</code> the rational 1/500. A concession is made only at the interface of a library from outside,
 and tightened there as far as it goes.</p>
 <pre class="text"><code>? [1.5 + 1, 7 / 2.0, 1.0e3, 1e3, 2e-3]
@@ -353,10 +353,11 @@ and tightened there as far as it goes.</p>
 <p>Output:</p>
 <pre class="text"><code>0.300000000000000</code></pre>
 <p>A comparison gives a <code>bool</code>, shown as <code>1</code> or <code>0</code>. <code>==</code> compares values across the kinds of
-number, <code>===</code> asks for the same kind as well. Comparisons chain. There is no <code>&amp;&amp;</code> and no
-<code>||</code>: <code>and</code> and <code>or</code> stop at the first argument that decides, and <code>!</code> is "not". False
-are <code>0</code>, <code>0.0</code> and <code>false</code>; an empty list and an empty string are true.</p>
-<pre class="text"><code>? [1 == 1.0, 1 === 1.0, 1 &lt; 2 &lt;= 2, 1 &lt;=&gt; 2, and(true, false), or(false, true), !false]
+number and refuses two values it cannot compare (a number and a <code>str</code>); <code>===</code> asks whether two
+values are the same, and gives <code>0</code> there. Comparisons chain. There is no <code>&amp;&amp;</code> and no
+<code>||</code>: <code>and</code> and <code>or</code> stop at the first argument that decides, and <code>!</code> is "not". A condition
+takes a <code>bool</code>: <code>if(0, 1, 2)</code> is a compile error, <code>if(0 != n, 1, 2)</code> the form.</p>
+<pre class="text"><code>? [1 == 1.0, 1 === &quot;1&quot;, 1 &lt; 2 &lt;= 2, 1 &lt;=&gt; 2, and(true, false), or(false, true), !false]
 &gt; [1,0,1,-1,0,1,1]</code></pre>
 <p>A number never becomes text by itself, nor text a number: <code>str(x)</code> writes a number,
 <code>uint.read(s)</code> and <code>sint.read(s)</code> read one, the whole text. A cast such as <code>uint(s)</code> goes
@@ -415,7 +416,8 @@ item per line.</p>
 &gt; [[1,0,[]],[1,3,[2,3,4]]]</code></pre>
 <p>A function that takes a function is called with a lambda, with a placeholder (<code>_1</code> is the
 first argument, <code>_2</code> the second) or with an operator's name (<code>_+_</code>, <code>_*_</code>). The startup
-functions <code>fold</code>, <code>max</code>, <code>min</code>, <code>prod</code>, <code>scan</code> and <code>sum</code> work so. A lambda takes the value
+functions <code>fold</code>, <code>prod</code>, <code>scan</code> and <code>sum</code> work so; <code>max</code> and <code>min</code> take the elements
+only (<code>max(apply(f, v))</code> for a function). A lambda takes the value
 a name has when the lambda is made, and it cannot assign a <code>mut</code> of the code around it.</p>
 <pre class="text"><code>? my(v= [3, 1, 2]);
 ? [fold(_*_, v), fold((a, b) -&gt; a + b, v), scan(_+_, v)]

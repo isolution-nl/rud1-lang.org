@@ -492,7 +492,7 @@ means C++, Rust, Java, Perl, Python and gp.</p>
 <td style="text-align: left;">pure parallelism, a fixed reduction order, no locks</td>
 <td style="text-align: left;">gp's <code>par*</code></td>
 <td style="text-align: left;">C++, Java, Python</td>
-<td style="text-align: left;">decided</td>
+<td style="text-align: left;">built but <code>parfor</code></td>
 </tr>
 <tr>
 <td style="text-align: left;">40</td>
@@ -628,31 +628,30 @@ grep-ability."). Status: built.</p>
 <h2 id="9-a-strict-bool">9. A strict <code>bool</code></h2>
 <p><code>true</code> and <code>false</code> are values of a type of their own, shown as <code>1</code> and <code>0</code>. A <code>bool</code> is no
 number: arithmetic on it is an <code>error</code>, <code>uint(b)</code> is 0 or 1, and a count of the elements that
-pass a test is <code>#[x | x &lt;- L, x &gt; 3]</code>. It is not compared with a number
-and it is no index (<code>v[true]</code> is an <code>error</code>). A condition takes a <code>bool</code> and nothing else: gp's
+pass a test is <code>#[x | x &lt;- L, x &gt; 3]</code>. Against a number it is 0 or 1 under <code>==</code>, <code>!=</code> and
+<code>===</code> (<code>true == 1</code>, A45.4), but not ordered (<code>true &lt; 2</code> is an <code>error</code>), and it is no index (<code>v[true]</code> is an <code>error</code>). A condition takes a <code>bool</code> and nothing else: gp's
 <code>if(n%2, …)</code> is <code>if(0 != n % 2, …)</code>, <code>while(1, …)</code> is <code>while(true, …)</code>; <code>0</code>, <code>""</code> and <code>[]</code>
 are not false (decision 521).</p>
 <pre class="text"><code>[rud1] [uint(true) + uint(true), #[x | x &lt;- [1, 5, 7], x &gt; 3]]  \\&gt; [2,2]
-[rud1] true == 1  \\&gt; we exited &lt;error(&quot;true == 1: a bool and a uint are not compared (&#39;===&#39; tells whether two values are the same)&quot;)&gt; at 1:1
+[rud1] true &lt; 2  \\&gt; we exited &lt;error(&quot;true &lt; 2: a bool and a uint are not compared (&#39;===&#39; tells whether two values are the same)&quot;)&gt; at 1:1
 [rud1] [10, 20][uint(true)]  \\&gt; 20</code></pre>
 <p><code>python3.12 -c 'print(True == 1, [10, 20][True])'</code> prints <code>True 20</code>; Rust and Java refuse
 <code>true + true</code> when compiled.</p>
 <p>Reason (the author, generation 29): "Built-ins should be strict where feasible"; a user's
 type may allow more. Status: built.</p>
-<h2 id="10--compares-values--asks-for-the-same-kind-too">10. <code>==</code> compares values, <code>===</code> asks for the same kind too</h2>
+<h2 id="10--compares-values--asks-for-the-same-kind-too">10. <code>==</code> compares values, <code>===</code> asks whether they are the same</h2>
 <p><code>==</code> promotes numbers as arithmetic does and ignores the names of a list's fields. <code>===</code>
-is identity: exact numbers by value, a float only with a float, names included. Values of
+is identity: numbers by value whatever their kind, names included. Values of
 different families are an <code>error</code> under <code>==</code> and plainly not identical under <code>===</code>.</p>
-<pre class="text"><code>[rud1] [1 == 1.0, 1 === 1.0, 0.5 == 1/2, 4/2 === 2]  \\&gt; [1,0,1,1]
+<pre class="text"><code>[rud1] [1 == 1.0, 1 === 1.0, 0.5 == 1/2, 4/2 === 2]  \\&gt; [1,1,1,1]
 [rud1] [[x: 1] == [1], [x: 1] === [1]]  \\&gt; [1,0]
 [rud1] &quot;1&quot; == 1  \\&gt; we exited &lt;error(&quot;\&quot;1\&quot; == 1: a str and a uint are not compared (&#39;===&#39; tells whether two values are the same)&quot;)&gt; at 1:1
 [rud1] &quot;1&quot; === 1  \\&gt; 0</code></pre>
 <p>Reason: <code>===</code> is gp's identity; <code>==</code> promotes because otherwise <code>0.1 - 1/10 == 0</code> and
 <code>0.1 == 1/10</code> would disagree. On the <code>error</code> (generation 29): "let's not allow <code>==</code> between
-differently typed values, unless they are really of the exact same family". Status: built;
-the spec still marks the rule of <code>===</code> as proposed. A float and a rational are separate types
-for now, so <code>0.1 === 1/10</code> is 0 (generation 49; open whether they are one value); in the
-prototype <code>0.1</code> is an error (section 5).</p>
+differently typed values, unless they are really of the exact same family". Status: built.
+A float and a rational of one value are the same number, so <code>0.1 === 1/10</code> is 1 (the prototype
+keeps <code>0.1</code> exact, section 5).</p>
 <h2 id="11-comparisons-chain-in-one-direction">11. Comparisons chain, in one direction</h2>
 <p><code>a &lt; b &lt;= c</code> means <code>a &lt; b</code> and <code>b &lt;= c</code>, with <code>b</code> evaluated once. A chain mixes <code>&lt;</code>, <code>&lt;=</code>,
 <code>==</code> or <code>&gt;</code>, <code>&gt;=</code>, <code>==</code>, never both directions; <code>!=</code>, <code>!==</code> and <code>&lt;=&gt;</code> do not chain.</p>
@@ -721,8 +720,9 @@ generation 26). The splice is the rule an index had already (<code>v[1, 3..5]</c
 <p>A range and a comprehension <code>[e | x &lt;- L, filter, …]</code> give their elements when asked, so a
 list may be endless (<code>oo</code> as a bound).</p>
 <pre class="text"><code>[rud1] [x^2 | x &lt;- [1..oo], 0 == x % 3][0..3]  \\&gt; [9,36,81,144]</code></pre>
-<p>gp's comprehensions are strict. Status: built by name: an element is computed again each
-time it is asked for. The spec's rule (computed once, then kept) is not built.</p>
+<p>gp's comprehensions are strict. Status: built: an element is computed once, at the first ask,
+then kept; <code>my(L= [mark(x) | x &lt;- [1..3]]); [L[2], L[2], L[2]]</code> under <code>rud1_run -p.marks.fd=2</code>
+writes one mark line.</p>
 <h2 id="16-an-operator-is-a-function-with-a-name">16. An operator is a function with a name</h2>
 <p>A binary operator has the name <code>_op_</code>, one token without spaces, and the name is its
 function as a value. The names are sealed: a script can't rebind <code>_+_</code>.</p>
@@ -811,9 +811,8 @@ itself (<code>uint.read("42")</code>, <code>str(42)</code>; <code>uint("42")</co
 units, 2 for one code point above FFFF.</p>
 <p>Reason: for <code>s[i]</code> the spec gives the rule only; for <code>+</code> it names the trap of one operator
 that adds and joins. Status: built: <code>str</code> and its <code>str.</code> family; of <code>bytes</code> the literal,
-<code>#</code>, the index, <code>~</code>, the comparisons and <code>str(b)</code>, the checked way to a <code>str</code>. Not built:
-<code>str.to_graphemes</code>, <code>bytes(s)</code>, the compile error for a <code>str</code> joined with <code>bytes</code> (an
-<code>error</code> when run, today).</p>
+<code>#</code>, the index, <code>~</code>, the comparisons and <code>str(b)</code>, the checked way to a <code>str</code>. <code>str.to_graphemes</code> and <code>bytes(s)</code> (<code>bytes("é")</code> is <code>b"\x{c3}\x{a9}"</code>) are built
+as well. Not built: the compile error for a <code>str</code> joined with <code>bytes</code> (an <code>error</code> when run, today).</p>
 <h2 id="22-case-mapping-is-the-unicode-standards-full-one">22. Case mapping is the Unicode Standard's full one</h2>
 <p><code>str.to_uppercase</code>, <code>str.to_lowercase</code> and <code>str.to_casefold</code> use the full mappings of the
 Standard (data of Unicode 18.0.0): a result can be longer than its input, and lowercasing
@@ -902,8 +901,8 @@ cases; an audit of generation 30 lists twelve. Two of them, a value dropped with
 are an <code>error</code> since generation 40 (decided in generation 34):</p>
 <pre class="text"><code>[rud1] mut my(a, b); [a, b]= [1, 2, 3]; [a, b]  \\&gt; we exited &lt;error(&quot;destructuring [a, b]: more than 2 values for 2 names&quot;)&gt; at 1:15
 [rud1] mut my(v= [0, 0, 0]); v[0, 1]= [5, 6, 7]; v  \\&gt; we exited &lt;error(&quot;scatter assignment: more than 2 values for 2 positions&quot;)&gt; at 1:23</code></pre>
-<p>Others on that list: a type word that is not used (section 4), the binary float of section
-5 (since generation 49 an error where it would round), and an old <code>[1, 3..9]</code> that changed its meaning with section
+<p>Others on that list: a type word that is not used (section 4), the binary float that section
+5 replaced (exact since A21.6), and an old <code>[1, 3..9]</code> that changed its meaning with section
 14. What counts as a silent limit (a value dropped, an argument ignored, a meaning changed,
 a digit cut) is not written down yet.</p>
 <h2 id="28-every-message-has-an-id">28. Every message has an id; <code>--explain</code> tells the ways out</h2>
@@ -939,7 +938,7 @@ value), while the prototype still lets a <code>Pct</code> pass where a <code>uin
 or <code>oo</code>, and the state is always <code>overflow</code>. C++, Java, Perl and Python compute in binary64,
 Rust and C++ in fixed widths unless asked; Rust names the wrap per operation
 (<code>wrapping_sub</code>). Reason (the author, generation 29): “Types are by default of infinite
-precision.'' Status: decided; today a float is binary64 and stops where it would round
+precision.'' Status: decided; the prototype's float is exact, a rational
 (section 5).</p>
 <h2 id="32-a-type-has-a-number-of-values">32. A type has a number of values</h2>
 <p><code>#bool()</code> is 2. A collection, a “multi'', has an index type: indexed by its order it is an
@@ -988,13 +987,15 @@ has macros. Reason: static analysis covers the code fully. Status: decided; <cod
 runs in a fixed tree order, so a sum of floats gives the same result on any number of threads.
 Shared data is immutable and a <code>{mut}</code> buffer can't cross threads: no locks in user code.
 Rust keeps a mutable value on one thread too; C++, Java and Python leave the locks and the order
-to the coder. Status: decided.</p>
+to the coder. Status: built but <code>parfor</code>: <code>parapply</code>, <code>parselect</code>, <code>parsum</code> and <code>parvector</code>
+(<code>parsum([1, 2, 3])</code> is 6); <code>parfor</code>, <code>async</code> and <code>await</code> are not built.</p>
 <h2 id="40-a-module-is-a-value">40. A module is a value</h2>
 <p><code>use</code> runs when the program is compiled and gives the module, a list of named fields; a
 module that ends undefined or <code>false</code> is refused, Perl's rule without its truthiness. A module
 can't reach <code>__MAIN__</code>; there is no <code>our</code>, no <code>local</code>, no <code>CORE::GLOBAL</code>.
 <code>CORE.say</code> is the language's <code>say</code>, as Perl's <code>CORE::say</code>. Python's modules are objects
-that any code can change. Status: decided; the startup module and <code>__CORE__</code> are built.</p>
+that any code can change. Status: decided; the startup module is built, <code>__CORE__</code> is proposed and its spelling open
+(<code>__CORE__.sum([1, 2])</code> is the compile error <code>undeclared '__CORE__'</code>).</p>
 <h2 id="41-safe-by-default">41. Safe by default</h2>
 <p>The executable does only safe, dry-run things unless a flag allows more. No language above has
 such a default. Reason (decision 58): the coder decides when a program may act. Status: decided.</p>
