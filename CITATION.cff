@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you refer to rud1, please cite it as below."
+title: "rud1: a mostly functional programming language"
+type: software
+authors:
+  - given-names: "Ruud H.G."
+    name-particle: "van"
+    family-names: "Tol"
+    orcid: "https://orcid.org/0009-0002-1030-3155"
+repository-code: "https://github.com/isolution-nl/rud1-lang.org"
+url: "https://rud1-lang.org"
+license:
+  - MIT
+  - CC-BY-4.0
+keywords:
+  - programming language
+  - exact arithmetic
+  - Lean 4

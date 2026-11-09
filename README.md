@@ -116,6 +116,11 @@ named arguments, lazy lists.
 
 Each example in the documents is run again before a document is published.
 
+## Author
+
+Ruud H.G. van Tol, ORCID [0009-0002-1030-3155](https://orcid.org/0009-0002-1030-3155). To cite rud1:
+`CITATION.cff` (GitHub's "Cite this repository").
+
 ## Licence
 
 - Code (Lean, Python, scripts): MIT, see `LICENSE`.
