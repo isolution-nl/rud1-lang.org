@@ -369,8 +369,8 @@ manual's.
     before any read.
 65. **Perl's END block is no `defer` at the top level.** `defer(say("end")); 5` is
     `1:1 error 'defer' outside a block`; `{ defer(say("end")); 5 }` writes `end` and
-    shows `5`. For the end of the program there is `at.main_end` (and `at.main_start`
-    for checks before `main()`): one list, whose ends run backward.
+    shows `5`. For the end of the program there is `END{ … }` (and `BEGIN{ … }`, `INIT{ … }`
+    for what comes first): the last `END` met runs first.
 
 ## Formats
 

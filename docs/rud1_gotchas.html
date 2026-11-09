@@ -637,8 +637,8 @@ whether its write worked, so <code>my(f(n)= (say(n); n^2)); f(3)</code> needs no
 before any read.</li>
 <li><strong>Perl's END block is no <code>defer</code> at the top level.</strong> <code>defer(say("end")); 5</code> is
 <code>1:1 error 'defer' outside a block</code>; <code>{ defer(say("end")); 5 }</code> writes <code>end</code> and
-shows <code>5</code>. For the end of the program there is <code>at.main_end</code> (and <code>at.main_start</code>
-for checks before <code>main()</code>): one list, whose ends run backward.</li>
+shows <code>5</code>. For the end of the program there is <code>END{ … }</code> (and <code>BEGIN{ … }</code>, <code>INIT{ … }</code>
+for what comes first): the last <code>END</code> met runs first.</li>
 </ol>
 <h2 id="formats">Formats</h2>
 <ol start="66">
