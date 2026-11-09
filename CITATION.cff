@@ -4,8 +4,7 @@ title: "rud1: a mostly functional programming language"
 type: software
 authors:
   - given-names: "Ruud H.G."
-    name-particle: "van"
-    family-names: "Tol"
+    family-names: "van Tol"
     orcid: "https://orcid.org/0009-0002-1030-3155"
 repository-code: "https://github.com/isolution-nl/rud1-lang.org"
 url: "https://rud1-lang.org"
