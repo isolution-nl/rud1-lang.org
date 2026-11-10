@@ -39,7 +39,7 @@ holds the proofs about the language's rules; its executable is named `rud1_run`,
 | status words on declarations: `deprecated_( … )_deprecated` | built | in |
 | regions with conditions and taint: `SOx_( … )_SOx` | proposed, designed in part | in |
 | messages with an id and an explanation: `rud1 --explain` | built | in |
-| policies on the command line: `-p.NAME=N` | built for warnings, `underflow`, `unpack` | in |
+| policies on the command line: `-p.NAME=N` | built for warnings, `underflow`, `unpack`, in Trudi too | in |
 | `sprintf` with Perl's formats, written in rud1 with templates | built, as a library file | later |
 | `use` and modules | proposed | in |
 | files and handles | not designed yet | in |
