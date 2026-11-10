@@ -215,83 +215,106 @@ holds the proofs about the language's rules; its executable is named <code>rud1_
 <tr>
 <th style="text-align: left;">Part</th>
 <th style="text-align: left;">Status</th>
+<th style="text-align: left;">Trudi</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td style="text-align: left;">one executable, <code>rud1</code>: a one-liner, a file, standard input, and the REPL</td>
 <td style="text-align: left;">proposed; today <code>rud1_run</code>, without the REPL</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">C++ as the host language, whole numbers by GMP</td>
 <td style="text-align: left;">proposed (the author: "most likely")</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">the REPL, after gp's: the prompt <code>? </code>, every value numbered (<code>%1</code>, <code>%</code>)</td>
 <td style="text-align: left;">decided</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">the language of the sections below: numbers, names, functions, loops, lists, strings, bytes</td>
 <td style="text-align: left;">built</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">results with a state (<code>error</code>, <code>undef</code>, <code>underflow</code>, …) instead of exceptions</td>
 <td style="text-align: left;">built</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">no silent rounding: a float that would round is an error</td>
 <td style="text-align: left;">built</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">a float of infinite precision as the default float</td>
 <td style="text-align: left;">decided</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">templates: <code>unpack</code> and <code>pack</code> for binary data and text formats</td>
 <td style="text-align: left;">built</td>
+<td style="text-align: left;">later</td>
 </tr>
 <tr>
 <td style="text-align: left;">a template refused when compiled when reading by it would take time that grows faster than the data</td>
 <td style="text-align: left;">built, the rule proposed</td>
+<td style="text-align: left;">later</td>
 </tr>
 <tr>
 <td style="text-align: left;">functions pure unless the compiler finds an effect</td>
 <td style="text-align: left;">decided</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">status words on declarations: <code>deprecated_( … )_deprecated</code></td>
 <td style="text-align: left;">built</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">regions with conditions and taint: <code>SOx_( … )_SOx</code></td>
 <td style="text-align: left;">proposed, designed in part</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">messages with an id and an explanation: <code>rud1 --explain</code></td>
 <td style="text-align: left;">built</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">policies on the command line: <code>-p.NAME=N</code></td>
 <td style="text-align: left;">built for warnings, <code>underflow</code>, <code>unpack</code></td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>sprintf</code> with Perl's formats, written in rud1 with templates</td>
 <td style="text-align: left;">built, as a library file</td>
+<td style="text-align: left;">later</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>use</code> and modules</td>
 <td style="text-align: left;">proposed</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">files and handles</td>
 <td style="text-align: left;">not designed yet</td>
+<td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;">a binding to libpari, as a module</td>
 <td style="text-align: left;">proposed</td>
+<td style="text-align: left;">out</td>
 </tr>
 </tbody>
 </table>
+<p>Trudi (<code>trud1</code>) is a tiny rud1 in C++ for boot scripts, a rescue shell
+and the bootstrap: it may refuse where rud1 answers, never answer otherwise. Its column says
+where a part goes: <strong>in</strong> the first Trudi, <strong>later</strong> a plugin left out of the first one,
+<strong>out</strong> <code>rud1</code>'s alone.</p>
 <h2 id="running-code">Running code</h2>
 <p><code>rud1 'code'</code> runs a one-liner, <code>rud1 file.rud</code> a file; source files end in <code>.rud</code>.</p>
 <p>A program is a sequence of expressions separated by <code>;</code>. Its value is the value of the last

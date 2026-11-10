@@ -28,17 +28,21 @@ How to read the tables:
   status 1.
 - Meanwhile is a program that works today, with its result after `\\>`. A dash: nothing
   shorter than writing it out yourself.
+- Trudi (`trud1`, the tiny rud1 in C++ that may refuse where rud1 answers, never answer
+  otherwise) says where each form goes once it is built: **in** the first Trudi, **later** a plugin
+  left out of the first Trudi (templates, `pack`, `unpack`, `sprintf` on them),
+  **out** `rud1`'s alone (libpari, the tools around the language).
 - A form without a row is not thereby built: the list follows the audit of generation 30
   and the spec's own marks.
 
 ## Lexical and literals (spec §1)
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `0x1F` | — | `1:1 error malformed number '0x1F': a number in a base is \x{1F}` (stays an error, spec §1) | `\x{1F} \\ 31` |
-| `[1, 2] >>+<< [3, 4]` | decided | `1:1 error not in the core yet: '>>+<<'` | a comprehension: Lists and numbers, (a) |
-| `my(_<+>_ : _+_ = (a, b) -> a + b); 1 <+> 2` | decided | `1:5 error expected ')', got op '<'` | `my(plus(a, b)= a + b); plus(1, 2) \\ 3` |
-| `my(x= 5); f"x = {x}"` | proposed | `1:11 error not in the core yet: prefixed literal 'f"…"'` | `my(x= 5); "x = " ~ str(x) \\ "x = 5"` |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `0x1F` | — | `1:1 error malformed number '0x1F': a number in a base is \x{1F}` (stays an error, spec §1) | `\x{1F} \\ 31` | in |
+| `[1, 2] >>+<< [3, 4]` | decided | `1:1 error not in the core yet: '>>+<<'` | a comprehension: Lists and numbers, (a) | in |
+| `my(_<+>_ : _+_ = (a, b) -> a + b); 1 <+> 2` | decided | `1:5 error expected ')', got op '<'` | `my(plus(a, b)= a + b); plus(1, 2) \\ 3` | in |
+| `my(x= 5); f"x = {x}"` | proposed | `1:11 error not in the core yet: prefixed literal 'f"…"'` | `my(x= 5); "x = " ~ str(x) \\ "x = 5"` | in |
 
 The other hyper operators (`>>*`, `*<<`, `>>[`) give the same message with their own
 token. A number in a base can be read by a template today (`$bin`, `$oct`, `$dec`, `$hex`).
@@ -51,15 +55,15 @@ along the promotion diamond. Where the compiler knows the kind of the value, one
 fit is a compile error (`my(uint x= -1)`); elsewhere it is an `error` when the program runs. What
 the type pass of spec §10 adds beyond that (dispatch, variants, binding by type) is below.
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `type T = uint {default: none}; my(T dn); dn= 1` | decided | `1:16 error a range of a type takes whole numbers: got ident 'default'` (decided: a compile error at `my(T dn)`, the value is given at the declaration) | `my(dn= 1); dn \\ 1` |
-| `my(x); x= 1; x` | decided | `1:8 error assignment to immutable 'x'` (late init) | `mut my(x); x= 1; x \\ 1` |
-| `type Pct = uint {0..100}; my(f(uint a)= a); f(Pct(5))` | decided | `5` (the type is built, generation 65; a `Pct` passes where a `uint` is wanted until the type pass of spec §10 refuses it, H1) | — |
-| `i64(5)` | decided | `1:1 error undeclared 'i64'` (also `f64`) | — |
-| `#bool()` | decided | `1:2 error wrong number of arguments to 'bool'` (multis and index types, spec §6.4) | — |
-| `my(r); state(r)` | decided | `1:8 error undeclared 'state'` | `my(r); is_defined(r) \\ 0` |
-| `my(x= [1][5]); origin(x)` | decided | `1:16 error undeclared 'origin'` | — |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `type T = uint {default: none}; my(T dn); dn= 1` | decided | `1:16 error a range of a type takes whole numbers: got ident 'default'` (decided: a compile error at `my(T dn)`, the value is given at the declaration) | `my(dn= 1); dn \\ 1` | in |
+| `my(x); x= 1; x` | decided | `1:8 error assignment to immutable 'x'` (late init) | `mut my(x); x= 1; x \\ 1` | in |
+| `type Pct = uint {0..100}; my(f(uint a)= a); f(Pct(5))` | decided | `5` (the type is built, generation 65; a `Pct` passes where a `uint` is wanted until the type pass of spec §10 refuses it, H1) | — | in |
+| `i64(5)` | decided | `1:1 error undeclared 'i64'` (also `f64`) | — | in |
+| `#bool()` | decided | `1:2 error wrong number of arguments to 'bool'` (multis and index types, spec §6.4) | — | in |
+| `my(r); state(r)` | decided | `1:8 error undeclared 'state'` | `my(r); is_defined(r) \\ 0` | in |
+| `my(x= [1][5]); origin(x)` | decided | `1:16 error undeclared 'origin'` | — | in |
 
 The check that `my(uint x= -1)` does not make, written out:
 
@@ -69,44 +73,44 @@ The check that `my(uint x= -1)` does not make, written out:
 
 ## Functions (spec §4a, §8)
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `my(f(lazy v[...])= 1); f(1, 2)` | decided | `1:6 error not in the core yet: a lazy or sym rest parameter` | `my(f(v[...])= #v); f(1, 2) \\ 2` |
-| `my(f(sym v[...])= 1); f(1, 2)` | proposed | `1:6 error not in the core yet: a lazy or sym rest parameter` | — |
-| `my(f(lazy x= 1)= x); f()` | decided | `1:6 error not in the core yet: default on a lazy or sym parameter` | — |
-| `my(sq(x)= x^2); sq` | decided | `sq` (decided: `(x) -> x^2`) | — |
-| `x -> x^2` | decided | `(lam (params x) (pow x 2))` (the core term) | — |
-| `my(sint diff(x, y)= x - y); diff(3, 5)` | decided | `-2` (the return type is built; variants by return type are not) | `my(diff(x, y)= +x - y); diff(3, 5) \\ -2` |
-| `my(f(sint n, str s)= s ~* n); f("ab", 2)` | decided | `1:33 error sint n: a str is no sint` (binding by type) | `my(f(sint n, str s)= s ~* n); f(s: "ab", n: 2) \\ "abab"` |
-| `my(f(e)= 5); guard(error("x"), f)` | decided | `f` (the handler `f` is not called) | `guard(error("x"), 5) \\ 5` |
-| `{ amend((r) -> 9); 5 }` | proposed | `1:3 error undeclared 'amend'` | — |
-| `my(f(x, y)= x - y, g= f(_, 2)); g(5)` | open | `1:25 error undeclared '_'` | `my(f(x, y)= x - y, g= x -> f(x, 2)); g(5) \\ 3` |
-| `-_(3)` | decided | `1:2 error undeclared '_'` (also `#_`, `!_`, `_[_]`) | `my(neg(x)= -x); neg(3) \\ -3` |
-| `len(today())` | decided | `10` (decided: `10`, the top level's impurity inferred, spec §2, generation 53; a compile error under `policy.main.impure=1`) | — |
-| `my(f()= len(today())); f()` | decided | `10` (decided: `10`, `f` inferred impure; a compile error under `policy.main.impure=1`) | — |
-| `state.set(impure); impure my(f()= len(today())); f()` | decided | `1:1 error undeclared 'state'` | `my(f()= len(today())); f() \\ 10` |
-| `my(main()= 144)` | decided | `main` (decided: `main()` runs, `144`; spec §5b, generation 37) | `my(main()= 144); main() \\ 144` |
-| `my(at.main_start= () -> 1); 2` | decided | `1:6 error expected ')', got punct '.'` | — |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `my(f(lazy v[...])= 1); f(1, 2)` | decided | `1:6 error not in the core yet: a lazy or sym rest parameter` | `my(f(v[...])= #v); f(1, 2) \\ 2` | in |
+| `my(f(sym v[...])= 1); f(1, 2)` | proposed | `1:6 error not in the core yet: a lazy or sym rest parameter` | — | in |
+| `my(f(lazy x= 1)= x); f()` | decided | `1:6 error not in the core yet: default on a lazy or sym parameter` | — | in |
+| `my(sq(x)= x^2); sq` | decided | `sq` (decided: `(x) -> x^2`) | — | in |
+| `x -> x^2` | decided | `(lam (params x) (pow x 2))` (the core term) | — | in |
+| `my(sint diff(x, y)= x - y); diff(3, 5)` | decided | `-2` (the return type is built; variants by return type are not) | `my(diff(x, y)= +x - y); diff(3, 5) \\ -2` | in |
+| `my(f(sint n, str s)= s ~* n); f("ab", 2)` | decided | `1:33 error sint n: a str is no sint` (binding by type) | `my(f(sint n, str s)= s ~* n); f(s: "ab", n: 2) \\ "abab"` | in |
+| `my(f(e)= 5); guard(error("x"), f)` | decided | `f` (the handler `f` is not called) | `guard(error("x"), 5) \\ 5` | in |
+| `{ amend((r) -> 9); 5 }` | proposed | `1:3 error undeclared 'amend'` | — | in |
+| `my(f(x, y)= x - y, g= f(_, 2)); g(5)` | open | `1:25 error undeclared '_'` | `my(f(x, y)= x - y, g= x -> f(x, 2)); g(5) \\ 3` | in |
+| `-_(3)` | decided | `1:2 error undeclared '_'` (also `#_`, `!_`, `_[_]`) | `my(neg(x)= -x); neg(3) \\ -3` | in |
+| `len(today())` | decided | `10` (decided: `10`, the top level's impurity inferred, spec §2, generation 53; a compile error under `policy.main.impure=1`) | — | in |
+| `my(f()= len(today())); f()` | decided | `10` (decided: `10`, `f` inferred impure; a compile error under `policy.main.impure=1`) | — | in |
+| `state.set(impure); impure my(f()= len(today())); f()` | decided | `1:1 error undeclared 'state'` | `my(f()= len(today())); f() \\ 10` | in |
+| `my(main()= 144)` | decided | `main` (decided: `main()` runs, `144`; spec §5b, generation 37) | `my(main()= 144); main() \\ 144` | in |
+| `my(at.main_start= () -> 1); 2` | decided | `1:6 error expected ')', got punct '.'` | — | in |
 
 The names of the binary operators are built: `[rud1] _+_(1, 2) \\ 3`.
 
 ## Lists and numbers (spec §5, §7, §8.1)
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `[1, 2] + [10, 20]` | decided | `we exited <error("[1, 2] + [10, 20]: no '+' for a list and a list")> at 1:1` | \(a\) below |
-| `[[1, 2], [3, 4]] * [[5, 6], [7, 8]]` | decided | `we exited <error("[[1, 2], [3, 4]] * [[5, 6], [7, 8]]: no '*' for a list and a list")> at 1:1` | \(b\) below |
-| `my(L= [10, 20, 30]); L[1..]` | open | `1:27 error unexpected punct ']'` | `my(L= [10, 20, 30]); L[1..#L-1] \\ [20,30]` |
-| `[0..^3]` | open | `1:6 error '^' needs a name, got uint '3'` | `[0..2] \\ [0,1,2]` |
-| `my(v= [10, 20, 30]); v[^1]` | open | `1:25 error '^' needs a name, got uint '1'` | \(c\) below |
-| `Map(["a", 42; "b", -1])` | open | `1:1 error undeclared 'Map'` | `my(m= [a: 42, b: -1]); m.a \\ 42` (a record: fixed names) |
-| `3 - 5` | decided | `we exited <underflow> at 1:1` (the state built in generation 38; decided: under `{underflow: keep}` its payload is the `sint` result) | `+3 - 5 \\ -2` |
-| `sint(5/2)` | open | `we exited <error("sint(5/2): a urat is not cast to a whole number")> at 1:1` (`sint(2.5)`: `the float 5/2 is not whole`; a whole float casts, `sint(2.0)` is 2, A21.12) | — |
-| `2^0.5` | open | `we exited <error("2 ^ 0.500000000000000: an exponent that is not whole is not in the core yet")> at 1:1` (a float exponent) | — |
-| `-0.0` | decided | `0.00000000000000` (no negative zero: a bug of the prototype's float) | — |
-| `oo // 2` | open | `we exited <error("not in the core yet: '//' with oo")> at 1:1` (also `%`, `^`, `sqrt`; the other operations on `oo` built in generation 55, spec §8.1) | — |
-| `#[x \| x <- [1..oo]]` | open | `out of steps`, at `-s 100000` (the walk takes a step a cell; only a range without an end has the length `+oo`; a list made from it, a range of floats, a list of steps are walked) | `#[1..oo] > 1000 \\ 1` |
-| `my(pow(str s, uint k)= s ~* k); "2"^3` | decided | `we exited <error("\"2\" ^ 3: no '^' for a str and a uint")> at 1:33` (dispatch through the lexical scope) | `"2" ~* 3 \\ "222"` |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `[1, 2] + [10, 20]` | decided | `we exited <error("[1, 2] + [10, 20]: no '+' for a list and a list")> at 1:1` | \(a\) below | in |
+| `[[1, 2], [3, 4]] * [[5, 6], [7, 8]]` | decided | `we exited <error("[[1, 2], [3, 4]] * [[5, 6], [7, 8]]: no '*' for a list and a list")> at 1:1` | \(b\) below | in |
+| `my(L= [10, 20, 30]); L[1..]` | open | `1:27 error unexpected punct ']'` | `my(L= [10, 20, 30]); L[1..#L-1] \\ [20,30]` | in |
+| `[0..^3]` | open | `1:6 error '^' needs a name, got uint '3'` | `[0..2] \\ [0,1,2]` | in |
+| `my(v= [10, 20, 30]); v[^1]` | open | `1:25 error '^' needs a name, got uint '1'` | \(c\) below | in |
+| `Map(["a", 42; "b", -1])` | open | `1:1 error undeclared 'Map'` | `my(m= [a: 42, b: -1]); m.a \\ 42` (a record: fixed names) | in |
+| `3 - 5` | decided | `we exited <underflow> at 1:1` (the state built in generation 38; decided: under `{underflow: keep}` its payload is the `sint` result) | `+3 - 5 \\ -2` | in |
+| `sint(5/2)` | open | `we exited <error("sint(5/2): a urat is not cast to a whole number")> at 1:1` (`sint(2.5)`: `the float 5/2 is not whole`; a whole float casts, `sint(2.0)` is 2, A21.12) | — | in |
+| `2^0.5` | open | `we exited <error("2 ^ 0.500000000000000: an exponent that is not whole is not in the core yet")> at 1:1` (a float exponent) | — | in |
+| `-0.0` | decided | `0.00000000000000` (no negative zero: a bug of the prototype's float) | — | in |
+| `oo // 2` | open | `we exited <error("not in the core yet: '//' with oo")> at 1:1` (also `%`, `^`, `sqrt`; the other operations on `oo` built in generation 55, spec §8.1) | — | in |
+| `#[x \| x <- [1..oo]]` | open | `out of steps`, at `-s 100000` (the walk takes a step a cell; only a range without an end has the length `+oo`; a list made from it, a range of floats, a list of steps are walked) | `#[1..oo] > 1000 \\ 1` | in |
+| `my(pow(str s, uint k)= s ~* k); "2"^3` | decided | `we exited <error("\"2\" ^ 3: no '^' for a str and a uint")> at 1:33` (dispatch through the lexical scope) | `"2" ~* 3 \\ "222"` | in |
 
 - \(a\) `[rud1] my(a= [1, 2], b= [10, 20]); [a[i] + b[i] | i <- [0..#a-1]] \\ [11,22]`
 - \(c\) `[rud1] my(v= [10, 20, 30]); [v[i] | i <- [0..#v-1], 1 != i] \\ [10,30]`
@@ -129,22 +133,22 @@ The comprehensions with `#a-1` are an `error` for an empty list (`uint - uint` b
 
 ## Strings (spec §7a, §5a)
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `str.to_titlecase("o'neil")` | decided | `we exited <error("str.to_titlecase(\"o'neil\"): not built yet (it waits for the word boundaries of UAX #29)")> at 1:1` | `str.to_titlecase_first("o'neil") \\ "O'neil"` |
-| `str.is_titlecase("A")` | decided | `we exited <error("str.is_titlecase(\"A\"): not built yet (it waits for the word boundaries of UAX #29)")> at 1:1` | — |
-| `str.is_casefolded("a")` | decided | `1` (built in generation 67, YN: D142, on the NFD form) | `"a" == str.to_casefold("a") \\ 1` (without normalization) |
-| `"é" == str([101, 769])` | decided | `1` (built in generation 66, YA; `===` stays false) | — |
-| `str.to_graphemes("x")` | decided | `["x"]` (built in generation 67, YD, YG: `#s` and `s[i]` count these) | `str.to_characters("x") \\ ["x"]` (the same since YK) |
-| `str.printf("%5d", 42)` | decided | `1:1 error no function 'str.printf'` (the format language: open) | `my(s= str(42)); " " ~* (5 - #s) ~ s \\ "   42"` |
-| `printf("%d\n", 42)` | decided | `1:1 error undeclared 'printf'` (also `sayf`) | `say(42); \\ 42` |
-| `str.pretty([1, 2])` | decided | `1:1 error no function 'str.pretty'` | `str.to_text([1, 2]) \\ "[1,2]"` |
-| `str.substr("hello", 1, 2, "XX")` | decided | `1:1 error call of 'str.substr': takes 2 to 3 arguments, got 4` | `my(s= "hello"); str.substr(s, 0, 1) ~ "XX" ~ str.substr(s, 3) \\ "hXXlo"` |
-| `my(f= str.is_cased); f("a")` | decided | `1:7 error undeclared 'str'` (a startup `str.` function as a value) | `my(f(s)= str.is_cased(s)); f("a") \\ 1` |
-| `str.uc("a")` | proposed | `1:1 error no function 'str.uc'` (short names: a module, which needs `use`) | `alias {uc: to_uppercase}; str.uc("a") \\ "A"` |
-| `re"a+"` | decided | `1:1 error not in the core yet: prefixed literal 're"…"'` (also `match`, `regex`: undeclared) | `unpack(t{%[^a]* "a"+ x*}, b"caab") \\ [b"c",[b"a",b"a"],b"b"]` (a template) |
-| `to_characters("ab")` | decided | `1:1 error undeclared 'to_characters'` (dispatch on the type of the first argument; for the type pass) | `str.to_characters("ab") \\ ["a","b"]` |
-| `uint.split(91, base: 2)` | open | `1:1 error no function 'uint.split'` | \(a\) below |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `str.to_titlecase("o'neil")` | decided | `we exited <error("str.to_titlecase(\"o'neil\"): not built yet (it waits for the word boundaries of UAX #29)")> at 1:1` | `str.to_titlecase_first("o'neil") \\ "O'neil"` | in |
+| `str.is_titlecase("A")` | decided | `we exited <error("str.is_titlecase(\"A\"): not built yet (it waits for the word boundaries of UAX #29)")> at 1:1` | — | in |
+| `str.is_casefolded("a")` | decided | `1` (built in generation 67, YN: D142, on the NFD form) | `"a" == str.to_casefold("a") \\ 1` (without normalization) | in |
+| `"é" == str([101, 769])` | decided | `1` (built in generation 66, YA; `===` stays false) | — | in |
+| `str.to_graphemes("x")` | decided | `["x"]` (built in generation 67, YD, YG: `#s` and `s[i]` count these) | `str.to_characters("x") \\ ["x"]` (the same since YK) | in |
+| `str.printf("%5d", 42)` | decided | `1:1 error no function 'str.printf'` (the format language: open) | `my(s= str(42)); " " ~* (5 - #s) ~ s \\ "   42"` | later |
+| `printf("%d\n", 42)` | decided | `1:1 error undeclared 'printf'` (also `sayf`) | `say(42); \\ 42` | later |
+| `str.pretty([1, 2])` | decided | `1:1 error no function 'str.pretty'` | `str.to_text([1, 2]) \\ "[1,2]"` | in |
+| `str.substr("hello", 1, 2, "XX")` | decided | `1:1 error call of 'str.substr': takes 2 to 3 arguments, got 4` | `my(s= "hello"); str.substr(s, 0, 1) ~ "XX" ~ str.substr(s, 3) \\ "hXXlo"` | in |
+| `my(f= str.is_cased); f("a")` | decided | `1:7 error undeclared 'str'` (a startup `str.` function as a value) | `my(f(s)= str.is_cased(s)); f("a") \\ 1` | in |
+| `str.uc("a")` | proposed | `1:1 error no function 'str.uc'` (short names: a module, which needs `use`) | `alias {uc: to_uppercase}; str.uc("a") \\ "A"` | in |
+| `re"a+"` | decided | `1:1 error not in the core yet: prefixed literal 're"…"'` (also `match`, `regex`: undeclared) | `unpack(t{%[^a]* "a"+ x*}, b"caab") \\ [b"c",[b"a",b"a"],b"b"]` (a template) | later |
+| `to_characters("ab")` | decided | `1:1 error undeclared 'to_characters'` (dispatch on the type of the first argument; for the type pass) | `str.to_characters("ab") \\ ["a","b"]` | in |
+| `uint.split(91, base: 2)` | open | `1:1 error no function 'uint.split'` | \(a\) below | in |
 
 (a):
 
@@ -161,13 +165,13 @@ Built: `read_line()` on standard input, `say` and `print` on standard output, `e
 `mark(v)`, a line (node, process id, value) on the file descriptor that `rud1_run -p.marks.fd=N`
 names, none without it. `printf 'AB' | rud1_run -e 'unpack(t{C x*})'` gives `[65,b"B"]`.
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `write(stdout, "x")` | open | `1:1 error undeclared 'write'` (handles, also `stderr`) | `print("x"); \\ x` |
-| `stdout.say("x")` | open | `1:1 error undeclared 'stdout'` | `say("x"); \\ x` |
-| `my(f= open("data.txt")); read(f)` | open | `1:7 error undeclared 'open'` | the shell: `rud1 file.rud < data.txt > out.txt`, and (a) below |
-| `read_line(1)` | open | `1:1 error call of 'read_line': too many arguments` (the other read verbs, timeouts, layers: their names are open) | — |
-| `now()`, `today()`, `time()`, `process.…` in a function not marked `impure`, or a hook | decided | (runs: effects are not inferred yet; decided: the function inferred impure, in a hook a compile error, spec §2, generation 53) | — |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `write(stdout, "x")` | open | `1:1 error undeclared 'write'` (handles, also `stderr`) | `print("x"); \\ x` | in |
+| `stdout.say("x")` | open | `1:1 error undeclared 'stdout'` | `say("x"); \\ x` | in |
+| `my(f= open("data.txt")); read(f)` | open | `1:7 error undeclared 'open'` | the shell: `rud1 file.rud < data.txt > out.txt`, and (a) below | in |
+| `read_line(1)` | open | `1:1 error call of 'read_line': too many arguments` (the other read verbs, timeouts, layers: their names are open) | — | in |
+| `now()`, `today()`, `time()`, `process.…` in a function not marked `impure`, or a hook | decided | (runs: effects are not inferred yet; decided: the function inferred impure, in a hook a compile error, spec §2, generation 53) | — | in |
 
 \(a\) Every line of standard input, here the three lines `3`, `4`, `5`:
 
@@ -191,18 +195,18 @@ the template parser reads, and the `template` value (`t{…}`, `template(s)`, th
 `~` and `~*` of templates are an error, spec §5d).
 Sentences of the spec that still say "`unpack` is not built" are older than that build.
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| the uncondensed tree (every item with position and length) | decided; how it is asked for: open | no form to try | — |
-| `unpack(t{"\N{DIGIT ONE}"}, b"1")` | decided | `1:8 error template 1:1: \N{name} is not built yet (it waits for the table of names)` | `unpack(t{"\x{31}"}, b"1") \\ [b"1"]` |
-| `unpack(t{&X}, b"e\x{cc}\x{81}")` | decided | `1:8 error template 1:1: the built-in pattern &X is not built yet` | `unpack(t{(?u: a2)}, b"e\x{cc}\x{81}") \\ ["é"]` (code points, counted by hand) |
-| `unpack(b"C n", b"A\x{00}\x{01}")` | decided | `we exited <error("unpack(b\"C n\", b\"A\\x{00}\\x{01}\"): the first argument is not a template (template(s) makes one of a str)")> at 1:1` (a template in a `bytes` value) | `unpack(template(b"C n"), b"A\x{00}\x{01}") \\ [65,1]` |
-| `unpack(q{C n}, b"A\x{00}\x{01}")` | decided | `we exited <error("unpack(\"C n\", b\"A\\x{00}\\x{01}\"): the first argument is not a template (template(s) makes one of a str)")> at 1:1` | `unpack(template(q{C n}), b"A\x{00}\x{01}") \\ [65,1]` |
-| `my(hex= t{%[0-9a-f]}); unpack(t{&hex}, b"a")` | proposed | `1:31 error template 1:1: the pattern &hex is not defined` | `unpack(t{&hex ::= %[0-9a-f] ; &hex}, b"a") \\ [b"a"]` |
-| `template(t{C}, ranking: 2)` | decided | `1:1 error wrong number of arguments to 'template'` (settings from a program; also `use template(…)`, a configuration) | "or else" between the variants: (a) below |
-| `unpack(t{f}, b"\x{00}\x{00}\x{80}\x{7f}")` | — | `we exited <error("unpack(t{f}, b\"\\x{00}\\x{00}\\x{80}\\x{7f}\"): template 1:1: 'f' on an infinity or a NaN: not read yet")> at 1:1` (a float that is an infinity or a NaN) | — |
-| hooks (a function on a group or a brace pair) | open: not designed | no form to try | — |
-| `P"%d"` | open | `1:1 error not in the core yet: prefixed literal 'P"…"'` (formats as templates: ideas, not decided) | — |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| the uncondensed tree (every item with position and length) | decided; how it is asked for: open | no form to try | — | later |
+| `unpack(t{"\N{DIGIT ONE}"}, b"1")` | decided | `1:8 error template 1:1: \N{name} is not built yet (it waits for the table of names)` | `unpack(t{"\x{31}"}, b"1") \\ [b"1"]` | later |
+| `unpack(t{&X}, b"e\x{cc}\x{81}")` | decided | `1:8 error template 1:1: the built-in pattern &X is not built yet` | `unpack(t{(?u: a2)}, b"e\x{cc}\x{81}") \\ ["é"]` (code points, counted by hand) | later |
+| `unpack(b"C n", b"A\x{00}\x{01}")` | decided | `we exited <error("unpack(b\"C n\", b\"A\\x{00}\\x{01}\"): the first argument is not a template (template(s) makes one of a str)")> at 1:1` (a template in a `bytes` value) | `unpack(template(b"C n"), b"A\x{00}\x{01}") \\ [65,1]` | later |
+| `unpack(q{C n}, b"A\x{00}\x{01}")` | decided | `we exited <error("unpack(\"C n\", b\"A\\x{00}\\x{01}\"): the first argument is not a template (template(s) makes one of a str)")> at 1:1` | `unpack(template(q{C n}), b"A\x{00}\x{01}") \\ [65,1]` | later |
+| `my(hex= t{%[0-9a-f]}); unpack(t{&hex}, b"a")` | proposed | `1:31 error template 1:1: the pattern &hex is not defined` | `unpack(t{&hex ::= %[0-9a-f] ; &hex}, b"a") \\ [b"a"]` | later |
+| `template(t{C}, ranking: 2)` | decided | `1:1 error wrong number of arguments to 'template'` (settings from a program; also `use template(…)`, a configuration) | "or else" between the variants: (a) below | later |
+| `unpack(t{f}, b"\x{00}\x{00}\x{80}\x{7f}")` | — | `we exited <error("unpack(t{f}, b\"\\x{00}\\x{00}\\x{80}\\x{7f}\"): template 1:1: 'f' on an infinity or a NaN: not read yet")> at 1:1` (a float that is an infinity or a NaN) | — | later |
+| hooks (a function on a group or a brace pair) | open: not designed | no form to try | — | later |
+| `P"%d"` | open | `1:1 error not in the core yet: prefixed literal 'P"…"'` (formats as templates: ideas, not decided) | — | later |
 
 \(a\) Two variants that can read the same text are a compile error while ranking is
 strict; `||` ("or else") says that the first one wins:
@@ -221,17 +225,17 @@ strict; `||` ("or else") says that the first one wins:
 All of §9a is proposed. A program is one file; the startup module (`sum`, `max`,
 `say`, …) is the only module, and it is always there.
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `my(nt= use("numtheory")); nt` | proposed | `1:8 error undeclared 'use'` | the functions in the same file |
-| `divisors(12)` | decided | `1:1 error undeclared 'divisors'` (a name of gp) | \(a\) below |
-| `CORE.say("hi")` | decided | `1:1 error undeclared 'CORE'` (spec §9a, generation 37: `CORE.x` names the startup binding) | `say("hi") \\ hi` |
-| `__NAME__` | proposed | `1:1 error undeclared '__NAME__'` (also `__MAIN__`, `__DIE__`) | — |
-| `__CORE__.sum([1, 2])` | proposed | `1:1 error undeclared '__CORE__'` | `sum([1, 2]) \\ 3` |
-| `CORE.exit_status()` | decided | `1:1 error undeclared 'CORE'` | `{ defer({ say("status ", exit_status()) }); exit(3) } \\ status 3` (exit status 3) |
-| `exit.max` | decided | `we exited <error("exit.max: a function has no named parts: only a list has")> at 1:1` (the largest exit status, a constant of the host) | — |
-| `naming(p_= {private}); 1` | proposed | `1:1 error undeclared 'naming'` | — |
-| `const(1 + 2)` | proposed | `1:1 error undeclared 'const'` | — |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `my(nt= use("numtheory")); nt` | proposed | `1:8 error undeclared 'use'` | the functions in the same file | in |
+| `divisors(12)` | decided | `1:1 error undeclared 'divisors'` (a name of gp) | \(a\) below | out |
+| `CORE.say("hi")` | decided | `1:1 error undeclared 'CORE'` (spec §9a, generation 37: `CORE.x` names the startup binding) | `say("hi") \\ hi` | in |
+| `__NAME__` | proposed | `1:1 error undeclared '__NAME__'` (also `__MAIN__`, `__DIE__`) | — | in |
+| `__CORE__.sum([1, 2])` | proposed | `1:1 error undeclared '__CORE__'` | `sum([1, 2]) \\ 3` | in |
+| `CORE.exit_status()` | decided | `1:1 error undeclared 'CORE'` | `{ defer({ say("status ", exit_status()) }); exit(3) } \\ status 3` (exit status 3) | in |
+| `exit.max` | decided | `we exited <error("exit.max: a function has no named parts: only a list has")> at 1:1` (the largest exit status, a constant of the host) | — | in |
+| `naming(p_= {private}); 1` | proposed | `1:1 error undeclared 'naming'` | — | in |
+| `const(1 + 2)` | proposed | `1:1 error undeclared 'const'` | — | in |
 
 - \(a\) `[rud1] my(divisors(n)= [d | d <- [1..n], 0 == n % d]); divisors(12) \\ [1,2,3,4,6,12]`
 
@@ -268,30 +272,30 @@ be pure. Not built: `parfor`, `async` and `await`, the state `pending`.
 [rud1] [parapply(x -> x + 1, [1, 2]), parselect(x -> x > 1, [1, 2, 3]), parsum([1, 2, 3])]  \\> [[2,3],[2,3],6]
 ```
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `async(1)` | proposed | `1:1 error undeclared 'async'` (also `await`) | — |
-| `parfor(i <- [1..3], say(i))` | proposed | `1:1 error undeclared 'parfor'` | `for(i <- [1..3], say(i)); 0` prints `1`<br>`2`<br>`3`<br>`0` |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `async(1)` | proposed | `1:1 error undeclared 'async'` (also `await`) | — | in |
+| `parfor(i <- [1..3], say(i))` | proposed | `1:1 error undeclared 'parfor'` | `for(i <- [1..3], say(i)); 0` prints `1`<br>`2`<br>`3`<br>`0` | in |
 
 ## The symbolic layer (spec §9)
 
 §9 states it; §11 lists the quoting as open ("tentative").
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| `'(1 + 2)` | open | `1:1 error not in the core yet: '''` (a quoted expression; also `'x`) | — |
-| `my(y= 1); $y` | open | `1:11 error not in the core yet: '$'` (a splice) | — |
-| `eval(1)` | — | `1:1 error undeclared 'eval'` (decided: no `eval`) | a function value: `my(f()= 1); f() \\ 1` |
-| `my(f(sym e)= e[0]); f(1 + 2)` | decided | `we exited <error("3[0]: a uint has no positions")> at 1:14`<br>`  in f at 1:21` (a `sym` parameter is by name; its expression can't be inspected) | `my(f(sym e)= e); f(1 + 2) \\ 3` |
-| `x^2 + 1` | open | `1:1 error undeclared 'x'` (a free variable; polynomials are to be a library) | `my(p(x)= x^2 + 1); p(3) \\ 10` |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| `'(1 + 2)` | open | `1:1 error not in the core yet: '''` (a quoted expression; also `'x`) | — | in |
+| `my(y= 1); $y` | open | `1:11 error not in the core yet: '$'` (a splice) | — | in |
+| `eval(1)` | — | `1:1 error undeclared 'eval'` (decided: no `eval`) | a function value: `my(f()= 1); f() \\ 1` | in |
+| `my(f(sym e)= e[0]); f(1 + 2)` | decided | `we exited <error("3[0]: a uint has no positions")> at 1:14`<br>`  in f at 1:21` (a `sym` parameter is by name; its expression can't be inspected) | `my(f(sym e)= e); f(1 + 2) \\ 3` | in |
+| `x^2 + 1` | open | `1:1 error undeclared 'x'` (a free variable; polynomials are to be a library) | `my(p(x)= x^2 + 1); p(3) \\ 10` | out |
 
 ## Tools (spec §10)
 
-| Form | Status | Today | Meanwhile |
-|---|---|---|---|
-| a compiler mode that writes the standard version of a program | backlog | no such mode | `rud1_run -c`: the core term, (a) below |
-| a tool that finds holes in templates (two templates that read one text differently, bytes that do not come back) | backlog: not designed | nothing | the compile error for two variants that read one text (Templates, (a)) |
-| a REPL (spec §4a: `x= 1` at its top level declares) | decided | no executable | `rud1 'code'` |
+| Form | Status | Today | Meanwhile | Trudi |
+|---|---|---|---|---|
+| a compiler mode that writes the standard version of a program | backlog | no such mode | `rud1_run -c`: the core term, (a) below | out |
+| a tool that finds holes in templates (two templates that read one text differently, bytes that do not come back) | backlog: not designed | nothing | the compile error for two variants that read one text (Templates, (a)) | later |
+| a REPL (spec §4a: `x= 1` at its top level declares) | decided | no executable | `rud1 'code'` | in |
 
 \(a\) `rud1_run -c -e '1 + 2'`:
 

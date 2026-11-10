@@ -24,26 +24,31 @@ holds the proofs about the language's rules; its executable is named `rud1_run`,
 
 ## The first release
 
-| Part | Status |
-|---|---|
-| one executable, `rud1`: a one-liner, a file, standard input, and the REPL | proposed; today `rud1_run`, without the REPL |
-| C++ as the host language, whole numbers by GMP | proposed (the author: "most likely") |
-| the REPL, after gp's: the prompt `? `, every value numbered (`%1`, `%`) | decided |
-| the language of the sections below: numbers, names, functions, loops, lists, strings, bytes | built |
-| results with a state (`error`, `undef`, `underflow`, …) instead of exceptions | built |
-| no silent rounding: a float that would round is an error | built |
-| a float of infinite precision as the default float | decided |
-| templates: `unpack` and `pack` for binary data and text formats | built |
-| a template refused when compiled when reading by it would take time that grows faster than the data | built, the rule proposed |
-| functions pure unless the compiler finds an effect | decided |
-| status words on declarations: `deprecated_( … )_deprecated` | built |
-| regions with conditions and taint: `SOx_( … )_SOx` | proposed, designed in part |
-| messages with an id and an explanation: `rud1 --explain` | built |
-| policies on the command line: `-p.NAME=N` | built for warnings, `underflow`, `unpack` |
-| `sprintf` with Perl's formats, written in rud1 with templates | built, as a library file |
-| `use` and modules | proposed |
-| files and handles | not designed yet |
-| a binding to libpari, as a module | proposed |
+| Part | Status | Trudi |
+|---|---|---|
+| one executable, `rud1`: a one-liner, a file, standard input, and the REPL | proposed; today `rud1_run`, without the REPL | in |
+| C++ as the host language, whole numbers by GMP | proposed (the author: "most likely") | in |
+| the REPL, after gp's: the prompt `? `, every value numbered (`%1`, `%`) | decided | in |
+| the language of the sections below: numbers, names, functions, loops, lists, strings, bytes | built | in |
+| results with a state (`error`, `undef`, `underflow`, …) instead of exceptions | built | in |
+| no silent rounding: a float that would round is an error | built | in |
+| a float of infinite precision as the default float | decided | in |
+| templates: `unpack` and `pack` for binary data and text formats | built | later |
+| a template refused when compiled when reading by it would take time that grows faster than the data | built, the rule proposed | later |
+| functions pure unless the compiler finds an effect | decided | in |
+| status words on declarations: `deprecated_( … )_deprecated` | built | in |
+| regions with conditions and taint: `SOx_( … )_SOx` | proposed, designed in part | in |
+| messages with an id and an explanation: `rud1 --explain` | built | in |
+| policies on the command line: `-p.NAME=N` | built for warnings, `underflow`, `unpack` | in |
+| `sprintf` with Perl's formats, written in rud1 with templates | built, as a library file | later |
+| `use` and modules | proposed | in |
+| files and handles | not designed yet | in |
+| a binding to libpari, as a module | proposed | out |
+
+Trudi (`trud1`) is a tiny rud1 in C++ for boot scripts, a rescue shell
+and the bootstrap: it may refuse where rud1 answers, never answer otherwise. Its column says
+where a part goes: **in** the first Trudi, **later** a plugin left out of the first one,
+**out** `rud1`'s alone.
 
 ## Running code
 
