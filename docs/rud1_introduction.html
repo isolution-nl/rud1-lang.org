@@ -221,7 +221,7 @@ holds the proofs about the language's rules; its executable is named <code>rud1_
 <tbody>
 <tr>
 <td style="text-align: left;">one executable, <code>rud1</code>: a one-liner, a file, standard input, and the REPL</td>
-<td style="text-align: left;">proposed; today <code>rud1_run</code>, without the REPL</td>
+<td style="text-align: left;">proposed; today <code>rud1_run</code>, the REPL with plain lines</td>
 <td style="text-align: left;">in</td>
 </tr>
 <tr>
@@ -231,7 +231,7 @@ holds the proofs about the language's rules; its executable is named <code>rud1_
 </tr>
 <tr>
 <td style="text-align: left;">the REPL, after gp's: the prompt <code>? </code>, every value numbered (<code>%1</code>, <code>%</code>)</td>
-<td style="text-align: left;">decided</td>
+<td style="text-align: left;">built (plain lines), in Trudi too</td>
 <td style="text-align: left;">in</td>
 </tr>
 <tr>
@@ -328,8 +328,8 @@ say(&quot;hello&quot;)</code></pre>
 <p>With a final <code>;</code>, the usual form of a script, only the output is left.</p>
 <p>Most examples below are sessions, as the REPL will show them (decided): an entry follows the
 prompt <code>? </code>, a longer one goes on in lines indented by two, and its value follows <code>&gt; </code>. An
-entry that ends in <code>;</code> shows no value. The REPL numbers each value as well (<code>%1 = …</code>,
-after gp; decided, not built); the sessions here leave the numbers out.</p>
+entry that ends in <code>;</code> shows no value. The REPL numbers each value as well (<code>%1&gt; …</code>,
+after gp; built, with plain lines); the sessions here leave the numbers out.</p>
 <pre class="text"><code>? 2 + 3 * 4
 &gt; 14
 
@@ -353,11 +353,12 @@ power.</p>
 <p>Sound all over: a value is what it says, or there is none. A <code>uint</code> minus a larger <code>uint</code>
 does not silently become a negative number, which protects an index; the result is the state
 <code>underflow</code> ("Errors are states"). A sum with a negative number, a prefix <code>+</code>, or the cast
-<code>sint(…)</code> gives the <code>sint</code>:</p>
-<pre class="text"><code>? [3 + -5, sint(3) - 5, +3 - 5]
-&gt; [-2,-2,-2]
+<code>sint(…)</code> gives the <code>sint</code>, and so do literals alone, folded when compiled:</p>
+<pre class="text"><code>? [3 + -5, sint(3) - 5, +3 - 5, 3 - 5]
+&gt; [-2,-2,-2,-2]
 
-? guard(3 - 5, &quot;below 0&quot;)
+? my(n= 3);
+? guard(n - 5, &quot;below 0&quot;)
 &gt; &quot;below 0&quot;</code></pre>
 <p>A literal with a dot is a float; a digit is needed on both sides of the dot (<code>1.0</code>, not
 <code>1.</code>). An operation with one float operand gives a float. The default float of the release

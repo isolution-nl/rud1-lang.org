@@ -26,9 +26,9 @@ holds the proofs about the language's rules; its executable is named `rud1_run`,
 
 | Part | Status | Trudi |
 |---|---|---|
-| one executable, `rud1`: a one-liner, a file, standard input, and the REPL | proposed; today `rud1_run`, without the REPL | in |
+| one executable, `rud1`: a one-liner, a file, standard input, and the REPL | proposed; today `rud1_run`, the REPL with plain lines | in |
 | C++ as the host language, whole numbers by GMP | proposed (the author: "most likely") | in |
-| the REPL, after gp's: the prompt `? `, every value numbered (`%1`, `%`) | decided | in |
+| the REPL, after gp's: the prompt `? `, every value numbered (`%1`, `%`) | built (plain lines), in Trudi too | in |
 | the language of the sections below: numbers, names, functions, loops, lists, strings, bytes | built | in |
 | results with a state (`error`, `undef`, `underflow`, …) instead of exceptions | built | in |
 | no silent rounding: a float that would round is an error | built | in |
@@ -74,8 +74,8 @@ With a final `;`, the usual form of a script, only the output is left.
 
 Most examples below are sessions, as the REPL will show them (decided): an entry follows the
 prompt `? `, a longer one goes on in lines indented by two, and its value follows `> `. An
-entry that ends in `;` shows no value. The REPL numbers each value as well (`%1 = …`,
-after gp; decided, not built); the sessions here leave the numbers out.
+entry that ends in `;` shows no value. The REPL numbers each value as well (`%1> …`,
+after gp; built, with plain lines); the sessions here leave the numbers out.
 
 ```text
 ? 2 + 3 * 4
@@ -109,13 +109,14 @@ power.
 Sound all over: a value is what it says, or there is none. A `uint` minus a larger `uint`
 does not silently become a negative number, which protects an index; the result is the state
 `underflow` ("Errors are states"). A sum with a negative number, a prefix `+`, or the cast
-`sint(…)` gives the `sint`:
+`sint(…)` gives the `sint`, and so do literals alone, folded when compiled:
 
 ```text
-? [3 + -5, sint(3) - 5, +3 - 5]
-> [-2,-2,-2]
+? [3 + -5, sint(3) - 5, +3 - 5, 3 - 5]
+> [-2,-2,-2,-2]
 
-? guard(3 - 5, "below 0")
+? my(n= 3);
+? guard(n - 5, "below 0")
 > "below 0"
 ```
 
