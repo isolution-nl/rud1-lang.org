@@ -68,7 +68,7 @@ the type pass of spec §10 adds beyond that (dispatch, variants, binding by type
 The check that `my(uint x= -1)` does not make, written out:
 
 ```text
-[rud1] my(x= uint(-1)); x  \\> we exited <error("uint(-1): -1 is negative")> at 1:7
+[rud1] my(x= uint(-1)); x  \\> 1:12 error uint(-1): -1 is negative, known when compiled [E074800]
 ```
 
 ## Functions (spec §4a, §8)
@@ -104,8 +104,8 @@ The names of the binary operators are built: `[rud1] _+_(1, 2) \\ 3`.
 | `[0..^3]` | open | `1:6 error '^' needs a name, got uint '3'` | `[0..2] \\ [0,1,2]` | in |
 | `my(v= [10, 20, 30]); v[^1]` | open | `1:25 error '^' needs a name, got uint '1'` | \(c\) below | in |
 | `Map(["a", 42; "b", -1])` | open | `1:1 error undeclared 'Map'` | `my(m= [a: 42, b: -1]); m.a \\ 42` (a record: fixed names) | in |
-| `3 - 5` | decided | `we exited <underflow> at 1:1` (the state built in generation 38; decided: under `{underflow: keep}` its payload is the `sint` result) | `+3 - 5 \\ -2` | in |
-| `sint(5/2)` | open | `we exited <error("sint(5/2): a urat is not cast to a whole number")> at 1:1` (`sint(2.5)`: `the float 5/2 is not whole`; a whole float casts, `sint(2.0)` is 2, A21.12) | — | in |
+| `3 - 5` | decided | `-2`, folded when compiled to a `sint` (generation 73); `my(a= 3); a - 5` is `we exited <underflow> at 1:11` (the state built in generation 38; decided: under `{underflow: keep}` its payload is the `sint` result) | `+3 - 5 \\ -2` | in |
+| `sint(5/2)` | open | `1:6 error sint(5/2): a urat is not cast to a whole number, known when compiled [E074800]` (`sint(2.5)`: `the float 5/2 is not whole`; a whole float casts, `sint(2.0)` is 2, A21.12) | — | in |
 | `2^0.5` | open | `we exited <error("2 ^ 0.500000000000000: an exponent that is not whole is not in the core yet")> at 1:1` (a float exponent) | — | in |
 | `-0.0` | decided | `0.00000000000000` (no negative zero: a bug of the prototype's float) | — | in |
 | `oo // 2` | open | `we exited <error("not in the core yet: '//' with oo")> at 1:1` (also `%`, `^`, `sqrt`; the other operations on `oo` built in generation 55, spec §8.1) | — | in |
@@ -297,11 +297,11 @@ be pure. Not built: `parfor`, `async` and `await`, the state `pending`.
 | a tool that finds holes in templates (two templates that read one text differently, bytes that do not come back) | backlog: not designed | nothing | the compile error for two variants that read one text (Templates, (a)) | later |
 | a REPL (spec §4a: `x= 1` at its top level declares) | decided | no executable | `rud1 'code'` | in |
 
-\(a\) `rud1_run -c -e '1 + 2'`:
+\(a\) `rud1_run -c -e 'my(x= 1); x + 2'` (`1 + 2` alone is folded when compiled, to `3`):
 
 ```text
-[rud1] 1 + 2
-\\ (add 1 2)
+[rud1] my(x= 1); x + 2
+\\ (seq (seq (decl x 1)) (add x 2))
 \\ 3
 ```
 
@@ -382,8 +382,8 @@ each with what it prints now:
   `b"…"` literal of 240000 bytes. From the Handover: `rud1_run` writes its output after
   the run and fetches standard input whole at the first read, so it is not interactive.
 - Since generation 38 a `uint` below 0 is the state `underflow`, not an `error`; it carries no
-  message (under `{underflow: keep}`, not built, the `sint` result).\
-  `[rud1] 3 - 5 \\ we exited <underflow> at 1:1`
+  message (under `{underflow: keep}`, not built, the `sint` result; of literals alone, `3 - 5`, the fold gives the `sint` -2).\
+  `[rud1] my(a= 3); a - 5 \\ we exited <underflow> at 1:11`
 - Some origins are terms of the core, not places in the source.\
   `[rud1] my(v= [10, 20, 30, 40]); v[0, 9] \\ we exited <error("[10, 20, 30, 40][9]: index 9 is outside 0 .. 3")> at (index #0 #2)`
 - A column counts bytes, not characters: this `zz` is the sixth character.\

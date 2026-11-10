@@ -589,11 +589,12 @@ the <code>_1</code> is the failed result itself, not a function, so <code>say</c
 which ends its call, and the program exits with <code>error("x")</code>.</li>
 <li><strong>A whole rational is a whole number.</strong> <code>4/2</code> is the <code>uint</code> 2 (<code>-4/2</code> the <code>sint</code> -2), as gp's
 <code>4/2</code> is a <code>t_INT</code>: <code>4/2 === 2</code> is 1, and <code>[10, 20, 30][4/2]</code> is 30, as
-<code>[10, 20, 30][2]</code> is. So <code>(4/2) - 3</code> is an <code>underflow</code>, as <code>2 - 3</code> is (a
-<code>uint</code> less a <code>uint</code> below 0), where gp gives -1. The same holds for two unsigned rationals:
-<code>1/2 - 3/2</code> is an <code>underflow</code>, <code>-1/2 - 3/2</code> is -2.</li>
-<li><strong>A <code>bool</code> and a number are not compared, also inside the startup functions.</strong>
-<code>true &lt; 1</code> and <code>1 == true</code> are an <code>error</code>, and so is <code>max(true, 0)</code>: the comparison is
+<code>[10, 20, 30][2]</code> is. So <code>my(a= 4); a/2 - 3</code> is an <code>underflow</code> (a <code>uint</code> less a
+<code>uint</code> below 0), where gp gives -1. The same holds for two unsigned rationals:
+<code>my(a= 1/2); a - 3/2</code> is an <code>underflow</code>. Of literals alone it is folded when compiled, to a
+signed result: <code>(4/2) - 3</code> is the <code>sint</code> -1, <code>1/2 - 3/2</code> too, <code>-1/2 - 3/2</code> is -2.</li>
+<li><strong>A <code>bool</code> and a number are not ordered, also inside the startup functions.</strong>
+<code>true &lt; 1</code> is an <code>error</code>, and so is <code>max(true, 0)</code>; under <code>==</code> a <code>bool</code> is 0 or 1 (<code>1 == true</code> is 1). For <code>max</code> the comparison is
 in the startup module, the message points at the call of <code>max</code>. Nor is a <code>bool</code> a number
 in arithmetic: <code>true + 1</code> is a compile error that shows the rewrite, <code>uint(true) + 1</code>, and
 <code>sum([true, true])</code> an <code>error</code> that names the count of the trues,
@@ -613,8 +614,8 @@ in a set %[&amp;alpha]" (for the 14 names). The letters are <code>&amp;alpha</co
 a zero byte and takes it: <code>unpack(t{a["\x{0}"] x*}, b"ab\x{00}c")</code> is
 <code>[b"ab\x{00}",b"c"]</code>. On <code>abc</code>, where no zero byte comes, <code>unpack(t{a["\x{0}"]}, b"abc")</code>
 is <code>[b"abc"]</code>, no <code>error</code>.</li>
-<li><strong>A run-time error of an operator says what and why.</strong> <code>1/0</code> ends the program with
-<code>we exited &lt;error("1 / 0: division by zero")&gt; at FILE:1:1</code>, <code>"a" ~ 1</code> with <code>"a" ~ 1: no '~' for a str and a uint</code>; a function too: <code>uint(-1)</code> ends with <code>uint(-1): -1 is negative</code>.
+<li><strong>A run-time error of an operator says what and why.</strong> <code>my(z= 0); 1/z</code> ends the program with
+<code>we exited &lt;error("1 / 0: division by zero")&gt; at FILE:1:11</code>, <code>"a" ~ 1</code> with <code>"a" ~ 1: no '~' for a str and a uint</code>; a function too: <code>my(n= -1); uint(n)</code> ends with <code>uint(-1): -1 is negative</code>. Of literals alone, <code>1/0</code> and <code>uint(-1)</code>, the same message is a compile error, <code>known when compiled</code>.
 The message is the operation with its values, as rud1 writes them, then why; a value
 longer than 40 characters by its kind and size (<code>[…; 1000 elements]</code>).</li>
 <li><strong>Positions in messages count bytes.</strong> <code>"é"; zz</code> gives <code>1:7 error undeclared 'zz'</code>,

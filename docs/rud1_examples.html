@@ -357,7 +357,7 @@ say(&quot;not reached&quot;);</code></pre>
 <p>Output:</p>
 <pre class="text"><code>4
 we exited &lt;error(&quot;odd: 7&quot;)&gt; at 091.rud:1:28
-  in half at 091.rud:3:5</code></pre>
+  in (half at 091.rud:3:5, say at 091.rud:3:1)</code></pre>
 <p>Exit status: 1.</p>
 <p><strong><code>is_defined</code>.</strong> A name declared without a value, <code>max</code> of an empty list and <code>read_line()</code>
 at the end of input are not defined (the second line: run with an empty standard input).</p>
@@ -773,8 +773,10 @@ move the cursor <code>n</code> gaps right or left, <code>n-</code> picks up the 
 cursor, <code>+</code> drops what was picked up at the cursor; a missing <code>n</code> is 1. The number at the
 end says where the result starts: the position of its first character on the ring. While
 characters are picked up, the ring is that much shorter; a pick may run across position 0.</p>
-<p>The program is read with <code>tpl_program</code>; the text is cut and joined with <code>tpl_cut</code>,
-<code>tpl_cut3</code> and <code>tpl_join</code>, whose positions are given when they are called (<code>given:</code>).
+<p>The program is read with <code>tpl_program</code>; the text is cut with <code>tpl_cut</code> and
+<code>tpl_cut3</code>, whose positions are given when they are called (<code>given:</code>), and joined with
+<code>~</code>: <code>pack</code> of <code>t{head:a* blk:a* tail:a*}</code> is refused, since its first <code>a*</code> would read every
+byte back (the read-back check).
 Both programs shown are 20 characters long, the fewest a search found; the last line runs the first
 on the text of the first subsection, with the same result.</p>
 <pre class="text"><code>[rud1]
@@ -782,7 +784,6 @@ my
 ( tpl_program= t{ops:(n:%[0-9]* op:%[RL\+\-])* end:$dec+}
 , tpl_cut=     t{(*given: at) head:a[=at] tail:a*}
 , tpl_cut3=    t{(*given: at k) head:a[=at] blk:a[=k] tail:a*}
-, tpl_join=    t{head:a* blk:a* tail:a*}
 );
 my(count(n)= if(&quot;&quot; == str(n), 1, uint.read(str(n))));
 my
@@ -801,22 +802,22 @@ my
         ( c + k &lt;= len
         , my(r= unpack(tpl_cut3, s, given: [at: c, k: k]));
           hand= r.blk;
-          s= pack(tpl_join, [head: r.head, blk: b&quot;&quot;, tail: r.tail]);
+          s= r.head ~ r.tail;
           c= c % (len - k)
         , my(m= c + k - len);
           my(r= unpack(tpl_cut3, s, given: [at: m, k: c - m]));
-          hand= pack(tpl_join, [head: r.tail, blk: r.head, tail: b&quot;&quot;]);
+          hand= r.tail ~ r.head;
           s= r.blk;
           c= 0
         )
       , my(r= unpack(tpl_cut, s, given: [at: c]));
-        s= pack(tpl_join, [head: r.head, blk: hand, tail: r.tail]);
+        s= r.head ~ hand ~ r.tail;
         c= (c + #hand) % len;
         hand= b&quot;&quot;
       )
     );
     my(r= unpack(tpl_cut, s, given: [at: p.end]));
-    str(pack(tpl_join, [head: r.tail, blk: r.head, tail: b&quot;&quot;]))
+    str(r.tail ~ r.head)
   }
 );
 for
@@ -844,10 +845,6 @@ knalbhdefgicjm</code></pre>
 <tr>
 <td style="text-align: left;"><code>tpl_cut3</code></td>
 <td style="text-align: left;"><code>t{(*given: at k) head:a[=at] blk:a[=k] tail:a*}</code><br />Cuts a text in three: <code>at</code> bytes, then <code>k</code> bytes, then the rest; both numbers given when it is called.</td>
-</tr>
-<tr>
-<td style="text-align: left;"><code>tpl_join</code></td>
-<td style="text-align: left;"><code>t{head:a* blk:a* tail:a*}</code><br />Three texts one after the other; used to write them (<code>pack</code>).</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>tpl_program</code></td>

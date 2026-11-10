@@ -334,7 +334,7 @@ the type pass of spec §10 adds beyond that (dispatch, variants, binding by type
 </tbody>
 </table>
 <p>The check that <code>my(uint x= -1)</code> does not make, written out:</p>
-<pre class="text"><code>[rud1] my(x= uint(-1)); x  \\&gt; we exited &lt;error(&quot;uint(-1): -1 is negative&quot;)&gt; at 1:7</code></pre>
+<pre class="text"><code>[rud1] my(x= uint(-1)); x  \\&gt; 1:12 error uint(-1): -1 is negative, known when compiled [E074800]</code></pre>
 <h2 id="functions-spec-4a-8">Functions (spec §4a, §8)</h2>
 <table>
 <thead>
@@ -519,14 +519,14 @@ the type pass of spec §10 adds beyond that (dispatch, variants, binding by type
 <tr>
 <td style="text-align: left;"><code>3 - 5</code></td>
 <td style="text-align: left;">decided</td>
-<td style="text-align: left;"><code>we exited &lt;underflow&gt; at 1:1</code> (the state built in generation 38; decided: under <code>{underflow: keep}</code> its payload is the <code>sint</code> result)</td>
+<td style="text-align: left;"><code>-2</code>, folded when compiled to a <code>sint</code> (generation 73); <code>my(a= 3); a - 5</code> is <code>we exited &lt;underflow&gt; at 1:11</code> (the state built in generation 38; decided: under <code>{underflow: keep}</code> its payload is the <code>sint</code> result)</td>
 <td style="text-align: left;"><code>+3 - 5 \\ -2</code></td>
 <td style="text-align: left;">in</td>
 </tr>
 <tr>
 <td style="text-align: left;"><code>sint(5/2)</code></td>
 <td style="text-align: left;">open</td>
-<td style="text-align: left;"><code>we exited &lt;error("sint(5/2): a urat is not cast to a whole number")&gt; at 1:1</code> (<code>sint(2.5)</code>: <code>the float 5/2 is not whole</code>; a whole float casts, <code>sint(2.0)</code> is 2, A21.12)</td>
+<td style="text-align: left;"><code>1:6 error sint(5/2): a urat is not cast to a whole number, known when compiled [E074800]</code> (<code>sint(2.5)</code>: <code>the float 5/2 is not whole</code>; a whole float casts, <code>sint(2.0)</code> is 2, A21.12)</td>
 <td style="text-align: left;">—</td>
 <td style="text-align: left;">in</td>
 </tr>
@@ -1068,9 +1068,9 @@ be pure. Not built: <code>parfor</code>, <code>async</code> and <code>await</cod
 </tr>
 </tbody>
 </table>
-<p>(a) <code>rud1_run -c -e '1 + 2'</code>:</p>
-<pre class="text"><code>[rud1] 1 + 2
-\\ (add 1 2)
+<p>(a) <code>rud1_run -c -e 'my(x= 1); x + 2'</code> (<code>1 + 2</code> alone is folded when compiled, to <code>3</code>):</p>
+<pre class="text"><code>[rud1] my(x= 1); x + 2
+\\ (seq (seq (decl x 1)) (add x 2))
 \\ 3</code></pre>
 <h2 id="built-but-different-from-the-spec-today">Built, but different from the spec today</h2>
 <p>None of the confirmed bugs of the audit of generation 30 is left.</p>
@@ -1145,8 +1145,8 @@ That took 0.17 s; 8000 lines 0.60 s, 16000 lines 2.16 s.</li>
 <code>b"…"</code> literal of 240000 bytes. From the Handover: <code>rud1_run</code> writes its output after
 the run and fetches standard input whole at the first read, so it is not interactive.</li>
 <li>Since generation 38 a <code>uint</code> below 0 is the state <code>underflow</code>, not an <code>error</code>; it carries no
-message (under <code>{underflow: keep}</code>, not built, the <code>sint</code> result).<br />
-<code>[rud1] 3 - 5 \\ we exited &lt;underflow&gt; at 1:1</code></li>
+message (under <code>{underflow: keep}</code>, not built, the <code>sint</code> result; of literals alone, <code>3 - 5</code>, the fold gives the <code>sint</code> -2).<br />
+<code>[rud1] my(a= 3); a - 5 \\ we exited &lt;underflow&gt; at 1:11</code></li>
 <li>Some origins are terms of the core, not places in the source.<br />
 <code>[rud1] my(v= [10, 20, 30, 40]); v[0, 9] \\ we exited &lt;error("[10, 20, 30, 40][9]: index 9 is outside 0 .. 3")&gt; at (index #0 #2)</code></li>
 <li>A column counts bytes, not characters: this <code>zz</code> is the sixth character.<br />

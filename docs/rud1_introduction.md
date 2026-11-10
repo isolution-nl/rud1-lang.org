@@ -541,7 +541,7 @@ Output:
 ```text
 6
 we exited <error("no such item: milk")> at 030.rud:2:37
-  in (price at 030.rud:3:53, total at 030.rud:6:5)
+  in (price at 030.rud:3:53, total at 030.rud:6:5, say at 030.rud:6:1)
 ```
 
 The exit status of that run is 1. `exit(n)` ends the program at once with status `n` (0 to

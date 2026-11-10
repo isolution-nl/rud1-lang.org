@@ -320,11 +320,12 @@ backslash form exists only inside a quote or a set.
     which ends its call, and the program exits with `error("x")`.
 56. **A whole rational is a whole number.** `4/2` is the `uint` 2 (`-4/2` the `sint` -2), as gp's
     `4/2` is a `t_INT`: `4/2 === 2` is 1, and `[10, 20, 30][4/2]` is 30, as
-    `[10, 20, 30][2]` is. So `(4/2) - 3` is an `underflow`, as `2 - 3` is (a
-    `uint` less a `uint` below 0), where gp gives -1. The same holds for two unsigned rationals:
-    `1/2 - 3/2` is an `underflow`, `-1/2 - 3/2` is -2.
-57. **A `bool` and a number are not compared, also inside the startup functions.**
-    `true < 1` and `1 == true` are an `error`, and so is `max(true, 0)`: the comparison is
+    `[10, 20, 30][2]` is. So `my(a= 4); a/2 - 3` is an `underflow` (a `uint` less a
+    `uint` below 0), where gp gives -1. The same holds for two unsigned rationals:
+    `my(a= 1/2); a - 3/2` is an `underflow`. Of literals alone it is folded when compiled, to a
+    signed result: `(4/2) - 3` is the `sint` -1, `1/2 - 3/2` too, `-1/2 - 3/2` is -2.
+57. **A `bool` and a number are not ordered, also inside the startup functions.**
+    `true < 1` is an `error`, and so is `max(true, 0)`; under `==` a `bool` is 0 or 1 (`1 == true` is 1). For `max` the comparison is
     in the startup module, the message points at the call of `max`. Nor is a `bool` a number
     in arithmetic: `true + 1` is a compile error that shows the rewrite, `uint(true) + 1`, and
     `sum([true, true])` an `error` that names the count of the trues,
@@ -344,8 +345,8 @@ backslash form exists only inside a quote or a set.
     a zero byte and takes it: `unpack(t{a["\x{0}"] x*}, b"ab\x{00}c")` is
     `[b"ab\x{00}",b"c"]`. On `abc`, where no zero byte comes, `unpack(t{a["\x{0}"]}, b"abc")`
     is `[b"abc"]`, no `error`.
-61. **A run-time error of an operator says what and why.** `1/0` ends the program with
-    `we exited <error("1 / 0: division by zero")> at FILE:1:1`, `"a" ~ 1` with `"a" ~ 1: no '~' for a str and a uint`; a function too: `uint(-1)` ends with `uint(-1): -1 is negative`.
+61. **A run-time error of an operator says what and why.** `my(z= 0); 1/z` ends the program with
+    `we exited <error("1 / 0: division by zero")> at FILE:1:11`, `"a" ~ 1` with `"a" ~ 1: no '~' for a str and a uint`; a function too: `my(n= -1); uint(n)` ends with `uint(-1): -1 is negative`. Of literals alone, `1/0` and `uint(-1)`, the same message is a compile error, `known when compiled`.
     The message is the operation with its values, as rud1 writes them, then why; a value
     longer than 40 characters by its kind and size (`[…; 1000 elements]`).
 62. **Positions in messages count bytes.** `"é"; zz` gives `1:7 error undeclared 'zz'`,

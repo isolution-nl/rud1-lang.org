@@ -306,7 +306,7 @@ Output:
 ```text
 4
 we exited <error("odd: 7")> at 091.rud:1:28
-  in half at 091.rud:3:5
+  in (half at 091.rud:3:5, say at 091.rud:3:1)
 ```
 
 Exit status: 1.
@@ -739,8 +739,10 @@ cursor, `+` drops what was picked up at the cursor; a missing `n` is 1. The numb
 end says where the result starts: the position of its first character on the ring. While
 characters are picked up, the ring is that much shorter; a pick may run across position 0.
 
-The program is read with `tpl_program`; the text is cut and joined with `tpl_cut`,
-`tpl_cut3` and `tpl_join`, whose positions are given when they are called (`given:`).
+The program is read with `tpl_program`; the text is cut with `tpl_cut` and
+`tpl_cut3`, whose positions are given when they are called (`given:`), and joined with
+`~`: `pack` of `t{head:a* blk:a* tail:a*}` is refused, since its first `a*` would read every
+byte back (the read-back check).
 Both programs shown are 20 characters long, the fewest a search found; the last line runs the first
 on the text of the first subsection, with the same result.
 
@@ -750,7 +752,6 @@ my
 ( tpl_program= t{ops:(n:%[0-9]* op:%[RL\+\-])* end:$dec+}
 , tpl_cut=     t{(*given: at) head:a[=at] tail:a*}
 , tpl_cut3=    t{(*given: at k) head:a[=at] blk:a[=k] tail:a*}
-, tpl_join=    t{head:a* blk:a* tail:a*}
 );
 my(count(n)= if("" == str(n), 1, uint.read(str(n))));
 my
@@ -769,22 +770,22 @@ my
         ( c + k <= len
         , my(r= unpack(tpl_cut3, s, given: [at: c, k: k]));
           hand= r.blk;
-          s= pack(tpl_join, [head: r.head, blk: b"", tail: r.tail]);
+          s= r.head ~ r.tail;
           c= c % (len - k)
         , my(m= c + k - len);
           my(r= unpack(tpl_cut3, s, given: [at: m, k: c - m]));
-          hand= pack(tpl_join, [head: r.tail, blk: r.head, tail: b""]);
+          hand= r.tail ~ r.head;
           s= r.blk;
           c= 0
         )
       , my(r= unpack(tpl_cut, s, given: [at: c]));
-        s= pack(tpl_join, [head: r.head, blk: hand, tail: r.tail]);
+        s= r.head ~ hand ~ r.tail;
         c= (c + #hand) % len;
         hand= b""
       )
     );
     my(r= unpack(tpl_cut, s, given: [at: p.end]));
-    str(pack(tpl_join, [head: r.tail, blk: r.head, tail: b""]))
+    str(r.tail ~ r.head)
   }
 );
 for
@@ -808,7 +809,6 @@ knalbhdefgicjm
 |---|---|
 | `tpl_cut` | `t{(*given: at) head:a[=at] tail:a*}`<br>Cuts a text in two at the position `at`, given when it is called. |
 | `tpl_cut3` | `t{(*given: at k) head:a[=at] blk:a[=k] tail:a*}`<br>Cuts a text in three: `at` bytes, then `k` bytes, then the rest; both numbers given when it is called. |
-| `tpl_join` | `t{head:a* blk:a* tail:a*}`<br>Three texts one after the other; used to write them (`pack`). |
 | `tpl_program` | `t{ops:(n:%[0-9]* op:%[RL\+\-])* end:$dec+}`<br>Reads a program of the pick-and-drop language: steps, each an optional count of digits and one of `R`, `L`, `+`, `-`, then the closing number. |
 | `tpl_read` | `t{p0:a p1:a p2:a p3:a4 p7:a p8:a p9:a p10:a p11:a p12:a p13:a}`<br>Reads 14 bytes as eleven pieces, each named by its position; `p3` is four bytes. |
 | `tpl_write` | `t{p10:a p13:a p0:a p11:a p1:a p7:a p3:a4 p8:a p2:a p9:a p12:a}`<br>The same eleven pieces in the order of the target; used to write them (`pack`). |
