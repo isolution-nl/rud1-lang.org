@@ -722,17 +722,10 @@ names, none without it. <code>printf 'AB' | rud1_run -e 'unpack(t{C x*})'</code>
 <td style="text-align: left;">in</td>
 </tr>
 <tr>
-<td style="text-align: left;"><code>stdout.say("x")</code></td>
-<td style="text-align: left;">open</td>
-<td style="text-align: left;"><code>1:1 error undeclared 'stdout'</code></td>
-<td style="text-align: left;"><code>say("x"); \\ x</code></td>
-<td style="text-align: left;">in</td>
-</tr>
-<tr>
 <td style="text-align: left;"><code>my(f= open("data.txt")); read(f)</code></td>
 <td style="text-align: left;">open</td>
-<td style="text-align: left;"><code>1:7 error undeclared 'open'</code></td>
-<td style="text-align: left;">the shell: <code>rud1 file.rud &lt; data.txt &gt; out.txt</code>, and (a) below</td>
+<td style="text-align: left;"><code>1:26 error undeclared 'read'</code> (<code>open</code> and <code>f.read()</code> are built, the visible <code>read</code> is <code>stdin</code>'s)</td>
+<td style="text-align: left;"><code>f.read()</code>, or the shell: <code>rud1 file.rud &lt; data.txt &gt; out.txt</code>, and (a) below</td>
 <td style="text-align: left;">in</td>
 </tr>
 <tr>

@@ -168,8 +168,7 @@ names, none without it. `printf 'AB' | rud1_run -e 'unpack(t{C x*})'` gives `[65
 | Form | Status | Today | Meanwhile | Trudi |
 |---|---|---|---|---|
 | `write(stdout, "x")` | open | `1:1 error undeclared 'write'` (handles, also `stderr`) | `print("x"); \\ x` | in |
-| `stdout.say("x")` | open | `1:1 error undeclared 'stdout'` | `say("x"); \\ x` | in |
-| `my(f= open("data.txt")); read(f)` | open | `1:7 error undeclared 'open'` | the shell: `rud1 file.rud < data.txt > out.txt`, and (a) below | in |
+| `my(f= open("data.txt")); read(f)` | open | `1:26 error undeclared 'read'` (`open` and `f.read()` are built, the visible `read` is `stdin`'s) | `f.read()`, or the shell: `rud1 file.rud < data.txt > out.txt`, and (a) below | in |
 | `read_line(1)` | open | `1:1 error call of 'read_line': too many arguments` (the other read verbs, timeouts, layers: their names are open) | — | in |
 | `now()`, `today()`, `time()`, `process.…` in a function not marked `impure`, or a hook | decided | (runs: effects are not inferred yet; decided: the function inferred impure, in a hook a compile error, spec §2, generation 53) | — | in |
 
